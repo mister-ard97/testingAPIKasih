@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            html { }
+            /*#region body */
+            body {
+                font-family: Roboto, 'Open Sans', 'Helvetica Neue', sans-serif;
+            }
+            /*#endregion body */
+            
+            /*#region header*/
+            header span {
+                font-size: 1.5em;
+                color: #74777B;
+                font-weight: bold;
+            }
+            header table {
+                width:90%;
+                margin:auto;
+            }
+            header table td:nth-child(2){
+                text-align:right;
+            }
+            /*#endregion header*/
+
+            /*#region no-invoice */
+            .no-invoice {
+                text-align:right; 
+                margin:auto auto 10px auto;
+                font-weight: bold;
+                width:90%;
+            }
+            /*#endregion no-invoice */
+
+            /*#region trans-header */
+            .trans-header {
+                margin: 30px 0;
+            }
+            .trans-header table {
+                margin:auto;
+                width:90%;
+            }
+            .trans-header th {
+                text-align: left;
+            }
+            .trans-header table tbody tr td:first-child {
+                font-weight: bold;
+            }
+            /*#endregion trans-header */
+
+            /*#region trans-detail */
+            .trans-detail {
+                margin: 40px 0;
+            }
+            .trans-detail table {
+                margin:auto;
+                width:90%;
+                border-collapse: collapse;
+            }
+            .trans-detail tbody td {
+                border: 1px solid black;
+            }
+            .trans-detail tbody td:nth-child(1) {
+                text-align: left;
+                padding: 0.5rem
+            }
+  
+            .trans-detail tfoot tr {
+                font-weight: bold;
+            }
+            .trans-detail tfoot tr td {
+                padding-top:10px;
+                border-bottom:1px solid black;
+            }
+
+            .table-header-left {
+                float: left;
+                padding: 0.25rem
+            }
+            .table-header-right {
+                float: right;
+                padding: 0.25rem
+            }
+            .footer-header {
+                float: right;
+                padding: 0.25rem
+            }
+            .table-number {
+                float: right;
+                padding: 0.25rem
+            }
+            /*#endregion trans-detail */
+
+            /*#region bank-information */
+            .bank-information {
+                margin: 0px auto 0px auto;
+                width:90%;
+            }
+            .bank-information table tr:first-child td:first-child {
+                border-bottom:1px solid black;
+            }
+            .bank-information h3 {
+                margin-block-start:0px;
+                margin-block-end:0px;
+            }
+            /*#endregion bank-information */
+
+            /*#region term-and-condition */
+            .term-and-condition {
+                margin: 0px auto 0px auto;
+                width:90%;
+            }
+            .term-and-condition h4 {
+                text-decoration: underline;
+                margin-block-end:8px;
+            }
+            .term-and-condition table tr td:first-child {
+                vertical-align: top;
+                width:30px;
+            }
+            .term-and-condition table tr td {
+                text-align: justify;
+            }
+            /*#endregion term-and-condition */
+
+            /*#region footer */
+            footer {
+                margin:100px auto auto auto;
+                width:90%;
+                bottom:0;
+            }
+            footer table {
+                border-spacing: 0px;
+                width:100%;
+            }
+            footer table thead tr th {
+                color: #474747;
+                font-size:12px;
+                text-align:left;
+            }
+            footer table thead tr th:last-child {
+                width:50%;
+            }
+            footer table tbody tr td {
+                color: #999999;
+                font-size:10px;
+            }
+            footer table tbody tr td:last-child {
+                font-weight: bold;
+                font-size:10x;
+            }
+            /*#endregion footer */
+        </style>
+    </head>
+    <body>
+        <header>
+            <table>
+                <tr>
+                    <td>
+                        <img src="https://apikasihnusantara.purwadhikax.com/defaultPhoto/LOGOkn.PNG" height="auto" width="200"/>
+                    </td>
+                    <td>
+                        <span class="table-number">INVOICE</span>
+                    </td>
+                </tr>
+            </table>
+        </header>
+        <main>
+            <section class="no-invoice">
+                No : {{InvoiceNumber}}
+            </section>
+            <section class="trans-header">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>
+                                Bill To
+                            </th>
+                            <th>
+                                Date
+                            </th>
+                            <th>
+                                Deadline
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                {{FullName}}
+                            </td>
+                            <td>
+                                {{CheckoutDate}}
+                            </td>
+                            <td>
+                                {{Deadline}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <section class="trans-detail">
+                <table>
+                    <thead>
+                        <tr>
+                            <th colspan="2">
+                                <div class="table-header-left">Description</div>
+                            </th>
+                            <th width="160px">
+                                <div class="table-header-right">Total</div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each TransactionItems}}
+                            <tr>
+                                <td colspan="2">
+                                   <div>{{this.name}}</div>
+                                   <div>{{this.description}}</div> 
+                                </td>
+                                <td>
+                                    <div class="table-number">IDR {{this.price}}</div>
+                                </td>
+                            </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </section>
+            <section class="bank-information">
+                <table>
+                    <tr>
+                        <td>
+                            <h3>Bank Information</h3>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Bank BCA Cab. Alam Sutera
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            604.168.8880
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            PT. Purwadhika Kirana Nusantara
+                        </td>
+                    </tr>
+                </table>
+            </section>
+            <section class="term-and-condition">
+                <h4>Term & Condition</h4>
+                <table>
+                    <tr>
+                        <td>
+                            1.
+                        </td>
+                        <td>
+                            <span>Apabila pembayaran telah dilakukan berdasarkan invoice yang telah dikirimkan, maka Anda dinyatakan telah mengetahui dan setuju untuk mengikuti program sesuai dengan pilihan yang telah Anda tentukan.</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            2.
+                        </td>
+                        <td>
+                                Pembayaran yang telah dibayarkan tidak dapat dikembalikan dan diatasnamakan kepada Pihak lain.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            3.
+                        </td>
+                        <td>
+                            Transaksi pembayaran yang dilakukan harus ditujukan ke rekening resmi Purwadhika dan jika ditujukan ke rekening atas nama pribadi dinyatakan tidak sah dan Purwadhika tidak bertanggung jawab.
+                        </td>
+                    </tr>
+                </table>
+            </section>
+        </main>
+        <!-- <footer>
+            <table>
+                <thead>
+                    <tr>
+                        <th>
+                            CAMPUS ADDRESS
+                        </th>
+                        <th>
+                            CONTACT
+                        </th>
+                        <th>
+                            FIND US ON
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            Green Office Park 9
+                        </td>
+                        <td>
+                            0838 1974 9699 | 0813 1867 8671
+                        </td>
+                        <td>
+                            <img src="cid:instagramlogo" alt="ig" width="auto" height="10" /> <img src="cid:facebooklogo" alt="fb" width="auto" height="10" /> @purwadhikastartupschool | <img src="cid:twitterlogo" alt="twitter" width="auto" height="10" /> Purwadhika_ID
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Ground Floor - BSD
+                        </td>
+                        <td>
+                            admission@purwadhika.com
+                        </td>
+                        <td>
+                            <img src="cid:youtubelogo" alt="yt" width="auto" height="10" /> Purwadhika TV | www.purwadhika.com | www.purwadhikapress.com
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </footer> -->
+    </body>
+</html>
