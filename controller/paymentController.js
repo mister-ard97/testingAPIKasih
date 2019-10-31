@@ -1,6 +1,6 @@
-const { Sequelize, sequelize, Payment, User, Project } = require('../models')
-const midtransClient                    = require('midtrans-client')
-const moment                            = require('moment')
+const { Sequelize, sequelize, Payment, User, Project }  = require('../models')
+const midtransClient                                    = require('midtrans-client')
+const moment                                            = require('moment')
 
 const snap = new midtransClient.Snap({
     isProduction    : false,
@@ -11,7 +11,7 @@ const snap = new midtransClient.Snap({
 module.exports = {
     //====================// midtrans //====================
     getSnapMd : (req, res) => {
-        let { projectId, userId, komentar, anonim} = req.body.userData
+        let { projectId, userId, komentar, anonim, scholarshipId} = req.body.userData
         let { gross_amount, order_id} = req.body.parameter.transaction_details
         let { parameter } = req.body
         console.log('masuk get token midtrans')
@@ -19,18 +19,21 @@ module.exports = {
         console.log(order_id)
         var Date = moment().format("YYMMDD")
         var randInt = Math.floor(Math.random()*(999-100+1)+100)
-  
+        // Halo jjhjhjhjkhhjhjj
+        // kol md 6
         snap.createTransaction(parameter)
         .then((transaction)=>{
             transactionToken = transaction.token;
             console.log('transactionToken: ', transactionToken)
+
             //######## INSERT DATABASE 
             Payment.create({
                 paymentType: 'pending',
                 nominal: gross_amount,
                 statusPayment: 'pending',
-                projectId: projectId,
-                userId: userId,
+                projectId: projectId ? projectId : null,
+                scholarshipId: scholarshipId ? scholarshipId : null,
+                userId: req.user.userId,
                 isRefund: '0',
                 isDeleted: '0',
                 order_id: order_id,
@@ -60,8 +63,26 @@ module.exports = {
         .then((Response)=>{
             console.log('=======masuk status=========')
             console.log( Response.transaction_status)
-            req.app.io.emit('status_transaction', Response.transaction_status)
- 
+            let status = {
+                order_id : Response.order_id,
+                transaction_status : Response.transaction_status
+            }
+            
+            //kirim respond status payment ke ui payment page dari push notification midtrans lewat socket io
+            req.app.io.emit('status_transaction', status)
+            
+            //update payment status on database
+            Payment.update({
+                paymentType : Response.payment_type,
+                statusPayment : Response.transaction_status,
+                updateAt: Response.transaction_time
+            },
+            {
+                where : {
+                    order_id : Response.order_id
+                }
+            })
+
             mockNotificationJson = Response     
             snap.transaction.notification(Response)
                 .then((statusResponse)=>{
@@ -165,6 +186,34 @@ module.exports = {
             console.log(err)
         })
     },
+    getDonasiProject: (req,res) => {
+        // console.log('masuk getDonasiProject')
+        let { projectId, scholarshipId } = req.body
+        console.log(req.body)
+        Payment.findAll({
+            attributes: ['nominal','updatedAt', 'komentar', 'isAnonim'],
+            where: { 
+                projectId : projectId ? projectId : null,
+                scholarshipId: scholarshipId ? scholarshipId : null,
+                statusPayment: 'settlement'
+             },
+            include: [
+                {
+                    model: User,
+                    attributes: ['nama']
+                }
+            ]
+        })
+        .then((result) => {
+            // console.log('===========>>>>>>>')
+            // console.log(result)
+            res.send(result)
+        })
+        .catch((err)=>{
+            console.log(err)
+        }
+        )
+    },
     getSubscription : (req,res) => {
         User.findOne({
             where: {
@@ -182,7 +231,7 @@ module.exports = {
         if(!email){
             return null
         }
-        console.log(req.body)
+        // console.log(req.body)
         User.update({
             subscriptionStatus: 1,
             subscriptionNominal,

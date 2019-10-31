@@ -9,51 +9,56 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       name: {
-        type: Sequelize.STRING,
-        allowNull:false
+        type: Sequelize.STRING
       },
       description: {
-        type: Sequelize.STRING,
-        allowNull:false
+        type: Sequelize.STRING
       },
       projectCreated: {
         type: Sequelize.DATE,
-        allowNull:false
+        allowNull: false
       },
       projectEnded: {
         type: Sequelize.DATE,
-        allowNull:false
+        allowNull: false
       },
       totalTarget: {
         type: Sequelize.INTEGER,
-        allowNull:false
-      },
-      shareDescription: {
-        type: Sequelize.STRING,
-        allowNull:false,
-        defaultValue: '-'
+        allowNull: false
       },
       projectImage: {
         type: Sequelize.STRING,
+        allowNull: false
+      },
+      shareDescription: {
+        type: Sequelize.STRING,
+        allowNull: false
       },
       userId: {
         type: Sequelize.INTEGER,
         references : {
           model : 'Users',
           key : 'id'
-        }
+        },
       },
       isCancelled: {
         type: Sequelize.INTEGER,
-        defaultValue : 0
+        allowNull: false,
+        defaultValue: 0
       },
       cancelledDate: {
         type: Sequelize.DATE,
-        defaultValue:null
+        defaultValue: null
       },
-      isDeleted : {
-        type : Sequelize.INTEGER,
-        defaultValue : 0
+      isGoing : {
+        type: Sequelize.INTEGER,
+        allowNull : false,
+        defaultValue :1
+      },
+      isDeleted: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0
       },
       createdAt: {
         allowNull: false,

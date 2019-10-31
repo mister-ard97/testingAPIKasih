@@ -4,6 +4,11 @@ const projectRouter = require('./projectRouter')
 const studentRouter=require('./studentRouter')
 const studentDetailRouter = require('./studentDetailRouter')
 const testRouter=require('./testrouter')
+const studentRevisionRouter = require('./studentRevisionRouter')
+const scholarshipRouter = require('./scholarshipRouter')
+const studentDetailRevisionRouter = require('./studentDetailRevisionRouter');
+const subscriptionRouter = require('./subscriptionRouter')
+
 module.exports = {
     userRouter,
     paymentRouter,
@@ -11,5 +16,10 @@ module.exports = {
     studentRouter,
     projectRouter,
     studentDetailRouter,
-    testRouter
+    testRouter,
+    studentRevisionRouter,
+    studentDetailRevisionRouter,
+    subscriptionRouter,
+    scholarshipRouter,
+
 }

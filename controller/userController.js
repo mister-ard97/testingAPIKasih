@@ -1,5 +1,5 @@
 
-const { User, Sequelize, sequelize } = require('../models');
+const { User, Sequelize, sequelize, School, Project, Payment, Subscription } = require('../models');
 const Op = Sequelize.Op
 const Crypto = require('crypto');
 
@@ -23,19 +23,18 @@ const createPdf = async (obj, cb) => {
     // let objObj = JSON.parse(JSON.stringify(obj)) //Forces get of Datavalues
     
 
-    var { email , nama, id , subscriptionNominal, date} = obj
-    // console.log(obj)
+    var { email , username, id , nominalSubscription, date} = obj
     try{ 
         const replacements = {
             PaymentReceiptNumber: id,
             PaymentReceiptDate: new Date(date).toLocaleDateString('id-IND'),
             PaymentMethod: 'dadasd',
-            FullName: `${nama}`,
+            FullName: `${username}`,
             InvoiceNumber: 012334556,
             Description: ['dsadasda','dadasdasda'],
             PayTo: `Kasih Nusantara`,
             NumberDetails: 123456,
-            Nominal:subscriptionNominal.toString().toLocaleString(),
+            Nominal:nominalSubscription.toString().toLocaleString(),
 
             logo: 'file:///' +  path.resolve('./emails') + '/supports/logowithtext.png',
             instagramlogo: 'file:///' +  path.resolve('./emails') + '/supports/instagram_icon.png',
@@ -44,8 +43,7 @@ const createPdf = async (obj, cb) => {
             youtubelogo: 'file:///' +  path.resolve('./emails') + '/supports/youtube_icon.png',
         }
 
-        // console.log(replacements)
-
+   
         const options = { 
             format: 'A5', 
             orientation: "landscape",
@@ -60,7 +58,7 @@ const createPdf = async (obj, cb) => {
         await pdfcreate("./emails/PaymentReceipt.html", replacements, options,obj, cb)
     }
     catch(err){
-        console.log('asdasda')
+  
         console.log(err)
     }
 }
@@ -71,10 +69,7 @@ const mailInvoice = async (obj, PDF_STREAM) => {
     try{
         // const { transaction, voucher } = paymentObj
         // const { programSales, subscriptionSales, serviceSales } = transaction
-        var { email , nama, id , subscriptionNominal, date} = obj
-        // console.log(obj)
-        console.log('---------------------------------------------------------')
-        // console.log(subscriptionNominal)
+        var { email , username, id , nominalSubscription, date} = obj
 
         let subject = "Payment Receipt kasihnusantara"
         let InvoiceNumber =012334556
@@ -87,12 +82,12 @@ const mailInvoice = async (obj, PDF_STREAM) => {
             PaymentReceiptNumber: id,
             PaymentReceiptDate: moment('20190208').format("DD MMMM YYYY"),
             PaymentMethod: 'dadasd',
-            FullName: `${nama}`,
+            FullName: `${username}`,
             InvoiceNumber: InvoiceNumber,
             Description: Description,
             PayTo: `Kasih Nusantara`,
             NumberDetails: NumberDetails,
-            Nominal:subscriptionNominal.toString().toLocaleString(),
+            Nominal:nominalSubscription.toString().toLocaleString(),
         }
 
         let attachments = [
@@ -101,7 +96,7 @@ const mailInvoice = async (obj, PDF_STREAM) => {
                 content: PDF_STREAM
             }
         ]  
-        console.log('email is ' + email)
+     
         await emailer(email, subject, "./emails/PaymentReceiptEmail.html", emailReplacements, attachments)
     }
     catch(err){
@@ -115,7 +110,7 @@ module.exports = {
 
     //Register, Login, KeepLogin, Reset Password / Forgot Password, Change Password, Login Gmail, Login Facebook
     registerUser : (req, res) => {
-        // console.log(req.body)
+     
         try {
             let path = `/users`; //file save path
             const upload = uploader(path, 'KasihNusantara').fields([{ name: 'imageUser' }]); //uploader(path, 'default prefix')
@@ -143,7 +138,7 @@ module.exports = {
                 })
                 .then(results => {
                     if(results.length === 0) {
-                        console.log('Data Tidak Ketemu Berarti Bisa daftar')
+        
 
                         const { 
                             name,
@@ -155,11 +150,9 @@ module.exports = {
                         .update(password).digest('hex');
 
                         const { imageUser } = req.files;
-                        console.log(imageUser)
+       
                         const imagePath = imageUser ? path + '/' + imageUser[0].filename : '/defaultPhoto/defaultUser.png';
-                        console.log(imagePath)
-    
-                        console.log(data)
+              
                         
                         User.create({
                             nama: name,
@@ -182,17 +175,16 @@ module.exports = {
                                 }
                             })
                             .then(dataUser => {
-                                console.log('Get data user')
-                                // console.log(dataUser.dataValues)
-                                // console.log(dataUser.dataValues.id)
+                    
                                 // Ketika sudah daftar kirim link verification dan create jwtToken
                                 const tokenJwt = createJWTToken({ userId: dataUser.dataValues.id, email: dataUser.dataValues.email })
 
                                 console.log(tokenJwt)
 
                                 let linkVerifikasi = `http://localhost:3000/verified/${tokenJwt}`;
+                                
                                 //untuk live
-                                //let linkVerifikasi = `https://testingui4.herokuapp.com/verified/${tokenJwt}`
+                                //let linkVerifikasi = `https://sharex.purwadhikax.com/verified/${tokenJwt}`
                         
                                 let mailOptions = {
                                     from: 'KasihNusantara Admin <rezardiansyah1997@gmail.com>',
@@ -248,7 +240,7 @@ module.exports = {
             }
         })
         .then((results) => {
-            // console.log(results)
+       
             if(results.length === 0) {
                 return res.status(500).send({ status: 'error', message: 'User not found' });
             } else {
@@ -262,14 +254,14 @@ module.exports = {
                     }
                 )
                 .then((resultUpdate) => {
-                    //console.log(resultUpdate)
+           
                     User.findOne({
                         where: {
                             id: req.user.userId
                         }
                     })
                     .then((dataUser) => {
-                       // console.log(dataUser)
+                  
 
                         return res.status(200).send({
                             dataUser: dataUser.dataValues,
@@ -303,7 +295,7 @@ module.exports = {
                 const tokenJwt = createJWTToken({ userId: dataUser.dataValues.id, email: dataUser.dataValues.email })
                 let linkVerifikasi = `http://localhost:3000/verified/${tokenJwt}`;
                 //untuk live
-                //let linkVerifikasi = `https://testingui4.herokuapp.com/verified/${tokenJwt}`
+                //let linkVerifikasi = `https://sharex.purwadhikax.com/verified/${tokenJwt}`
         
                 let mailOptions = {
                     from: 'KasihNusantara Admin <rezardiansyah1997@gmail.com>',
@@ -340,19 +332,19 @@ module.exports = {
     },
 
     keepLogin: (req, res) => {
-        console.log('Test Keep Login')
+ 
         User.findOne({
             where: {
                 id: req.user.userId 
             }
         })
         .then((dataUser) => {
-            console.log('Masuk')
+      
             if(dataUser) {
-                //console.log(dataUser)
+         
                 const tokenJwt = createJWTToken({ userId: dataUser.id, email: dataUser.email })
 
-                // console.log(dataUser)
+            
                 return res.status(200).send({
                     dataUser,
                     token: tokenJwt,
@@ -370,7 +362,7 @@ module.exports = {
     userLogin: (req, res) => {
         let hashPassword = Crypto.createHmac('sha256', 'kasihnusantara_api')
             .update(req.body.password).digest('hex');
-        //console.log(req.body)
+    
         User.findOne({
             where: {
                 email: req.body.email,
@@ -440,7 +432,7 @@ module.exports = {
 
                 let linkVerifikasi = `http://localhost:3000/verifiedReset?token=${tokenPassword}`;
                 //untuk live
-                //let linkVerifikasi = `https://testingui4.herokuapp.com/verifiedReset?token=${tokenPassword}`
+                //let linkVerifikasi = `https://sharex.purwadhikax.com/verifiedReset?token=${tokenPassword}`
 
                 let mailOptions = {
                     from: 'TestingUi Admin <rezardiansyah1997@gmail.com>',
@@ -494,6 +486,18 @@ module.exports = {
         })
         .catch((err) => {
             return res.status(500).json({ message: "There's an error on the server. Please contact the administrator.", error: err.message });
+        })
+    },
+    getSchool:(req,res)=>{
+        School.findAll({
+            attributes:[
+                "nama",
+                "id"
+            ]
+
+        })
+        .then((result)=>{
+            return res.status(200).send({ message : 'getschool success', result : result})
         })
     },
 
@@ -554,6 +558,7 @@ module.exports = {
                 return res.status(500).send({ status: 'error', message: `Anda sudah pernah mendaftar dengan Email = ${req.body.data.email}`})
             } else {
                 // console.log('Testing')
+            
                 let encryptGoogleId = Crypto.createHmac('sha256', 'kasihnusantaraGoogleId_api')
                                     .update(req.body.data.googleId).digest('hex')
                 
@@ -570,7 +575,7 @@ module.exports = {
                         // console.log(dataUser.email)
                         const tokenJwt = createJWTToken({ userId: dataUser.id, email: dataUser.email })
 
-                        console.log(dataUser.id)
+                        // console.log(dataUser.id)
 
                         return res.status(200).send({
                             dataUser,
@@ -703,6 +708,32 @@ module.exports = {
             return res.status(500).json({ message: "There's an error on the server. Please contact the administrator.", error: err.message });
         })
     },
+    // getSubscription : (req,res) => {
+    //     User.findOne({
+    //         where: {
+    //             email: req.body.email
+    //         },
+    //         attributes: ['subscriptionStatus', 'subscriptionNominal']
+    //     }).then((results) => {
+    //         res.send(results)
+    //     })
+    // },
+
+    // applySubscription : (req,res) => {
+    //     var { subscriptionNominal, email, reminderDate } = req.body
+    //     // console.log(req.body)
+    //     User.update({
+    //         subscriptionStatus: 1,
+    //         subscriptionNominal,
+    //         reminderDate
+    //     },{
+    //         where: { email }
+    //     })
+    //     .then(() => {
+    //         console.log('masuk')
+    //         res.send('success')
+    //     })
+    // },
     getSubscription : (req,res) => {
         User.findOne({
             where: {
@@ -725,98 +756,321 @@ module.exports = {
             where: { email }
         })
         .then(() => {
-            console.log('masuk')
+            // console.log('masuk')
             res.send('success')
         })
     },
     reminderInvoice : async (req,results) =>{ // RUN SEKALI / HARI
         // console.log('reminderINvoice')
         // console.log(req)
-
-        var res  = await User.findAll({where: {
-            [Op.and] : [
-                sequelize.where(sequelize.fn('datediff', sequelize.col('reminderDate') ,  sequelize.fn("NOW")), {
-                    [Op.eq] : 0 // OR [Op.gt] : 5
-                }),
+        try{
+            var res  = await Subscription.findAll(
                 {
-                    subscriptionStatus : 1
-                }
-            ]
-        },
-    
-        attributes : ['nama', 'id', 'subscriptionNominal', 'email']})
-
-        var listname = res.map((val) =>{
-            // return val.dataValues
-            return {...val.dataValues, date : new Date(), deadline : new Date()}
-        })
-
-        console.log(listname)
-
-
-        const loop = async() =>{
-            console.log('start')
-            for(var i = 0; i<listname.length ; i++){
-                console.log(listname[i])
-                
-                await createPdf(listname[i], async (PDF_STREAM, obj) => {
-                    console.log('async')
-                    await mailInvoice(obj, PDF_STREAM)
+                    where: {
+                        [Op.and] : [
+                            sequelize.where(sequelize.fn('datediff', sequelize.col('remainderDate') ,  sequelize.fn("NOW")), {
+                                [Op.eq] : 0 // OR [Op.gt] : 5
+                            }),
+                            {
+                                isCancelled : 0,
+                                monthLeft : {
+                                    [Op.gt] : 0
+                                }
+                            }
+                        ]
+                    },
+            
+                    attributes : ['id', 'scholarshipId', 'nominalSubscription', 'remainderDate', 'monthLeft'],
+                    include : [
+                        {
+                            model : User,
+                            require : true,
+                            attributes : [['nama', 'username'], 'email'],
+                            where : {
+                                verified : 1
+                            }
+                        }
+                    ]
+            
                 })
-                console.log('finish user ', i )
+        
+                // console.log(res[0].dataValues.User.dataValues)
+        
+        
+                var listname = res.map((val) =>{
+                    // return val.dataValues
+                    var results = {...val.dataValues, ...val.dataValues.User.dataValues, date : new Date(), deadline : new Date()}
+                    delete results.User
+                    return results
+                })
+
+                var listid = res.map((val)=>{
+                    return val.id
+                })
+                console.log(listid)
+                console.log('ini list id')
+                console.log(listname)
+        
                 
-                // console.log(listname[i].email)
+        
+                // console.log(listname)
+        
+        
+        
+                // console.log(listname)
+        
+        
+                const loop = async() =>{
+                    console.log('start')
+                    for(var i = 0; i<listname.length ; i++){
+                        console.log(listname[i])
+                        // { email , nama, id , subscriptionNominal, date} = obj
+                        await createPdf(listname[i], async (PDF_STREAM, obj) => {
+                            console.log('async')
+                            await mailInvoice(obj, PDF_STREAM)
+                        })
+                        console.log('finish user ', i )
+                        
+                        // console.log(listname[i].email)
+                 
+                        // testcontroller.getemail(listname[i].email)
+                        // testcontroller.getemail(listname[i].email)
+                    }
          
-                // testcontroller.getemail(listname[i].email)
-                // testcontroller.getemail(listname[i].email)
-            }
-            console.log('end')
+                }
+                await loop()
+           
+        
+        
+                Subscription.update(
+                {
+                    monthLeft : sequelize.literal('monthLeft - 1')
+                }
+                ,
+                {
+                    where: {
+                        // [Op.and] : [
+                        //     sequelize.where(sequelize.fn('datediff', sequelize.col('reminderDate') ,  sequelize.fn("NOW")), {
+                        //         [Op.eq] : 0 // today is the user reminder date
+                        //     }),
+                        //     {
+                                isCancelled : 0,
+                                id : {
+                                    [Op.in] : listid
+                                }
+
+                        //     }
+                        // ]
+                    },
+                })
+                .then((res)=>{
+              
+                    console.log('------------------********************* finish success')
+          
+                    // console.log(res)
+                   
+        
+        
+                    // ----------------------------------------------------------------------------------------------------------
+                    // for(var i = 0; i<listname.length ; i++){
+                    //     console.log(listname[i])
+                    //     testcontroller.getemail(listname[i].email)
+                    // }
+                    
+                    // // var listname = res[0].dataValues
+                    // // console.log(listname)
+                    // console.log('success')
+                    // //scheduler
+                    // return results.status(200).send('success')
+                })
+                .catch((err)=>{
+                    console.log(err)
+                })
         }
-        await loop()
-        console.log('asd--asd--asd--')
+        catch(err){
+            console.log(err)
+        }
+        
+    },
+    projectCheck : (req,results) =>{ 
+        
+        // Project.update(
+        //     {
+        //         isGoing : 0
+        //     },
+        //     {
+        //         include : [
+        //             {
+        //                 model : Payment,
+        //                 require : true,
+        //                 // where : {
+        //                 //     [Op.or] : [
+        //                 //         sequelize.where(sequelize.fn('SUM', sequelize.col('nominal')), {
+        //                 //             [Op.gte] :  sequelize.col('totalTarget')
+        //                 //         })
+        //                 //     ]
+        //                 // },
+        //                 // group : ['projectId']
+        //             }
+                        
+                        
+                    
+        //         ],
+        //         where : {
+        //             // [Op.or] : [
+        //             //     // TANGGAL YANG EXPIRED
+                        // sequelize.where(sequelize.fn('datediff', sequelize.col('projectEnded') ,  sequelize.fn("NOW")), {
+                        //     [Op.lte] : 0 // OR [Op.gt] : 5
+                        // }),
+        //             //     // sequelize.where(sequelize.fn('SUM', sequelize.col('Payment.nominal')), {
+        //             //     //     [Op.gte] :  sequelize.col('totalTarget')
+        //             //     // })
+
+        //             //     // TOTAL SUM PAYMENT PER (PROJECT ID ) lebih besar dari TotalTarget
+                      
+                    
+        //             // ],
+        //             isDeleted : 0,
+        //             isCancelled : 0 
+        //         }, 
+        //         having : 
+                    // sequelize.where(sequelize.fn('SUM', sequelize.col('Payment.nominal')), {
+                    //     [Op.gte]: 5,
+                    //   })
+                
 
 
-        User.update(
-        {
-            reminderDate : moment().add(1, 'M').format('YYYY-MM-DD') // 1 bulan dari sekarang 
-        }
-        ,
-        {
-            where: {
-                [Op.and] : [
-                    sequelize.where(sequelize.fn('datediff', sequelize.col('reminderDate') ,  sequelize.fn("NOW")), {
-                        [Op.eq] : 0 // today is the user reminder date
+              
+        //     },
+            
+            
+        //     ).then((res)=>{
+        //         console.log(res)
+    
+        //         console.log('success Project Check')
+        //     }).catch((err)=>{
+        //         console.log('err')
+        //         console.log(err)
+        //     })
+
+
+        Project.findAll({
+            attributes : [
+                 'id',
+                 [sequelize.fn('SUM', sequelize.col('Payments.nominal')), 'totalNominal'],
+                 'projectEnded',
+                 'totalTarget'
+            ],
+            include : [
+                {
+                    model : Payment,
+                    required : true
+                }
+            ],
+            where : {
+                // [Op.or] : [
+                //     sequelize.where(totalTarget, {
+                //         [Op.gte]: sequelize.fn('SUM', sequelize.col('Payments.nominal')),
+                //     })
+                // ],
+                isDeleted : 0,
+                isCancelled : 0,
+                isGoing : 1
+                // totalTarget : {
+                //     [Op.lte] : sequelize.fn('SUM', sequelize.col('Payments.nominal'))
+                // }
+
+
+            },
+            group : ['id'],
+            having : {
+                [Op.or] : [
+                    sequelize.where(sequelize.fn('datediff', sequelize.col('projectEnded') ,  sequelize.fn("NOW")), {
+                        [Op.lte] : 0 // OR [Op.gt] : 5
                     }),
                     {
-                        subscriptionStatus : 1
+                        totalTarget : {
+                            [Op.lte] : sequelize.col('totalNominal')
+                            //sequelize.fn('SUM', sequelize.col('Payments.nominal'))
+                        }
                     }
                 ]
-            }
-        })
-        .then((res)=>{
-            console.log(res)
-            console.log('------------------********************* finish success')
-  
-            // console.log(res)
            
+            }
+        }).then((res)=>{
+   
+            var listproject = res.map((val)=>{
+                console.log(val.dataValues)
+                return val.dataValues.id
+            })
+            console.log(listproject)
+
+            Project.update({
+                isGoing : 0
+            }, {
+                where : {
+                    id : {
+                        [Op.in] : listproject
+                    }
+                }
+            }).then((res)=>{
+                console.log('success')
+            }).catch((err)=>{
+                console.log('error')
+            })
+        }).catch((err)=>{
+            console.log('errors')
+        })
 
 
-            //----------------------------------------------------------------------------------------------------------
-            // for(var i = 0; i<listname.length ; i++){
-            //     console.log(listname[i])
-            //     testcontroller.getemail(listname[i].email)
-            // }
-            
-            // // var listname = res[0].dataValues
-            // // console.log(listname)
-            // console.log('success')
-            // //scheduler
-            // return results.status(200).send('success')
-        })
-        .catch((err)=>{
-            console.log(err)
-        })
-    }
+       
+    },
+    
 }
 
 
+
+// Project.findAll({
+//     attributes : 
+//         ['id', 'totalTarget', 'projectEnded']
+//     ,
+//     where : {
+//         isGoing : 1
+//     }
+// }).then((res)=>{
+ 
+// }).catch((err)=>{
+//     console.log(err)
+// })
+
+
+// var listproject = res.map((val)=>{
+//     console.log(moment(val.dataValues.projectEnded).format('YYYY-MM-DD'))
+
+//     val.dataValues.projectEnded = moment(val.dataValues.projectEnded).format('YYYY-MM-DD')
+    
+
+//     return val.dataValues
+// })
+// console.log(listproject)
+// listproject.forEach(project => {
+//     //---------------------------------------------------------------------------------------------
+//     Project.update({
+//         isGoing : 0
+//     },{
+//         where : {
+//             [Op.or] : [
+//                 sequelize.where(sequelize.fn('datediff', project.projectEnded ,  sequelize.fn("NOW")), {
+//                     [Op.gte] : 0 // OR [Op.gt] : 5
+//                 })
+//             ]
+//         }
+//     }).then((res)=>{
+//         console.log('res1')
+
+//     }).catch((err)=>{
+
+//         console.log('err2')
+//     })
+//     //---------------------------------------------------------------------------------------------
+// });

@@ -1,7 +1,7 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Students', {
+    return queryInterface.createTable('StudentRevisions', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -14,48 +14,57 @@ module.exports = {
       },
       pendidikanTerakhir: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: false
       },
       gender: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: false
       },
       status: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: false
       },
       alamat: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: false
       },
       tanggalLahir: {
         type: Sequelize.DATE,
-        allowNull: false,
+        allowNull: false
       },
       studentImage: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: false
       },
       isDeleted: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        defaultValue : 0
+        defaultValue: 0
       },
       userId: {
         type: Sequelize.INTEGER,
-        allowNull : false,
         references : {
           model : 'Users',
           key : 'id'
-        }
+        },
       },
       story: {
         type: Sequelize.STRING,
-        allowNull : false
+        allowNull: false
       },
-      sekolah: {
-        type: Sequelize.STRING,
-        allowNull : false
+      schoolId: {
+        type: Sequelize.INTEGER,
+        references : {
+          model : 'Schools',
+          key : 'id'
+        },
+      },
+      studentId : {
+        type: Sequelize.INTEGER,
+        references : {
+          model : 'Student',
+          key : 'id'
+        },
       },
       createdAt: {
         allowNull: false,
@@ -68,6 +77,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Students');
+    return queryInterface.dropTable('StudentRevisions');
   }
 };

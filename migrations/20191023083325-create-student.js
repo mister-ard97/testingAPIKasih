@@ -1,59 +1,71 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Users', {
+    return queryInterface.createTable('Students', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      nama: {
+      name: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      password: {
-        type: Sequelize.STRING
-      },
-      email: {
+      pendidikanTerakhir: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      phoneNumber: {
+      gender: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      isGoogle: {
-        type: Sequelize.STRING
-      },
-      isFacebook: {
-        type: Sequelize.STRING
-      },
-      userImage: {
+      status: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      lastLogin: {
+      alamat: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      tanggalLahir: {
         type: Sequelize.DATE,
         allowNull: false
       },
-      verified: {
-        type: Sequelize.INTEGER,
-        defaultValue : 0,
-        allowNull: false
-      },
-      role: {
+      studentImage: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      subscriptionStatus: {
+      isDeleted: {
         type: Sequelize.INTEGER,
-        defaultValue : 0,
+        allowNull: false,
+        defaultValue: 0
+      },
+      userId: {
+        type: Sequelize.INTEGER,
+        references : {
+          model : 'Users',
+          key : 'id'
+        },
+      },
+      story: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      schoolId: {
+        type: Sequelize.INTEGER,
+        references : {
+          model : 'Schools',
+          key : 'id'
+        },
+      },
+      dataStatus: {
+        type: Sequelize.STRING,
         allowNull: false
       },
-      subscriptionNominal: {
-        type: Sequelize.INTEGER,
-        defaultValue : 0
+      statusNote: {
+        type: Sequelize.STRING,
+        allowNull: false
       },
       createdAt: {
         allowNull: false,
@@ -66,6 +78,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Users');
+    return queryInterface.dropTable('Students');
   }
 };

@@ -11,6 +11,7 @@ router.post('/keepLogin', auth, userController.keepLogin);
 router.post('/login', userController.userLogin);
 router.post('/loginGmail', userController.loginWithGoogle);
 router.post('/loginFacebook', userController.loginWithFacebook);
+router.get('/getschool', userController.getSchool);
 
 router.post('/userForgotPassword', userController.getResetPasswordToken);
 router.get('/userGetResetToken', resetToken, userController.userCheckResetToken);

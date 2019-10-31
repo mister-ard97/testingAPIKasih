@@ -8,7 +8,8 @@ var { auth } = require('../helpers/auth')
 const { projectController } = require('../controller/index')
 
 router.post('/postproject', auth, projectController.postProject)
-router.get('/getproject', auth, projectController.getProject);
+router.get('/getproject',auth, projectController.getProject);
+router.post('/searchproject', projectController.searchProject);
 
 router.get('/getAllProject', projectController.getAllProject)
 router.get('/getDetailProject', projectController.getDetailProject);

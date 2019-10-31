@@ -3,7 +3,7 @@ var express = require('express'),
 var app = express();
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
-const port = 2019
+const port = 1998
 const bodyParser = require('body-parser')
 const cors = require('cors')
 
@@ -16,14 +16,7 @@ require('./scheduler/schedulers')
 app.use(bodyParser.json())
 app.use(cors())
 
-
-
-
-
-
 app.io = io
-
-
 
 app.use(bodyParser.urlencoded({extended : false}))
 app.use(express.static('public')) 
@@ -36,7 +29,7 @@ app.use(bearerToken())
 
 
 
-const {userRouter, paymentRouter,studentRouter,studentDetailRouter,projectRouter,testRouter} = require('./router')
+const {userRouter, paymentRouter,studentRouter,studentDetailRouter,projectRouter,testRouter, studentRevisionRouter, studentDetailRevisionRouter, subscriptionRouter, scholarshipRouter} = require('./router')
 app.use("/user", userRouter)
 app.use('/payment', paymentRouter)
 app.use("/user", userRouter)
@@ -44,6 +37,10 @@ app.use('/student',studentRouter)
 app.use("/project", projectRouter)
 app.use("/studentdetail", studentDetailRouter)
 app.use('/test',testRouter)
+app.use('/studentrev', studentRevisionRouter)
+app.use('/scholarship', scholarshipRouter)
+app.use('/studentdetailrev', studentDetailRevisionRouter);
+app.use('/subscription', subscriptionRouter);
 
 
 console.log('masuk io')
@@ -63,9 +60,5 @@ app.get('/', (req, res) => {
         `<h3>Welcome to Kasih Nusantara API</h3>`
     )
 })
-
-
-
-
 
 server.listen(port, ()=>console.log('listen on port ' + port));
