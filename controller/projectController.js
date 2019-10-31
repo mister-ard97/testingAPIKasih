@@ -308,10 +308,10 @@ module.exports = {
         console.log(offset)
         
         Project.findAll({
-            limit:parseInt(limit),
+            // limit:parseInt(limit),
             // limit : 10,
-            offset:offset,
-            subQuery: false,
+            // offset:offset,
+            // subQuery: false,
             attributes : [
                 ["name", "projectName"],
                 ["id", "projectId"],
