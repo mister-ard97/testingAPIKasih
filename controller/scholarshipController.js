@@ -282,17 +282,15 @@ module.exports = {
                             ["nama", "namaSekolah"]
                         ]
                     },
-                    {
-                        model : Subscription,
-                        attributes :   [
-                            'nominalSubscription',
-                            [sequelize.fn('SUM', sequelize.col('nominalSubscription')), 'currentSubs']
-                        ], 
-                        group : ['scholarshipId'],
-                       
-                                    
-                        separate : true
-                    },
+                    // {
+                    //     model : Subscription,
+                    //     attributes :   [
+                    //         'nominalSubscription',
+                    //         [sequelize.fn('SUM', sequelize.col('nominalSubscription')), 'currentSubs']
+                    //     ], 
+                    //     group : ['scholarshipId'], 
+                    //     separate : true
+                    // },
                     {
                         model : Payment,
                         attributes : []
