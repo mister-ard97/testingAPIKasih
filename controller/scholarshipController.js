@@ -310,8 +310,9 @@ module.exports = {
                 })
 
                 .then((result) => {
-                    console.log(result[0].dataValues.Subscriptions.length)
+                    // console.log(result[0].dataValues.Subscriptions.length)
                     // console.log(result[0].dataValues.Subscriptions[0].dataValues)
+                    console.log('aaaaaaaaaaaaaaaaaaaaa')
                     return res.status(200).send(result)
                 }).catch((err)=>{
                     console.log(err)
