@@ -5,15 +5,16 @@ console.log('masuk')
 
 const schedule = require('node-schedule');
 
-// var schedulerInvoice = schedule.scheduleJob('*/5 * * * * *', function(){
-//     userController.projectCheck() //params
-//     // userController.reminderInvoice()
-// });
+var schedulerInvoice = schedule.scheduleJob('*/15 * * * * *', function(){
+    // userController.scholarshipCheck() //params
+    // userController.reminderInvoice()
+});
 
 
 
 module.export = {
     // schedulerInvoice
+    schedulerInvoice
 }
 
 

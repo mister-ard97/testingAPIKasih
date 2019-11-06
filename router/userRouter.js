@@ -18,6 +18,6 @@ router.get('/userGetResetToken', resetToken, userController.userCheckResetToken)
 router.post('/newPasswordUser', resetToken, userController.userResetPassword);
 router.post('/userChangePassword', auth, userController.userChangePassword);
 
-
+router.get('/getSubscription', auth, userController.getSubscription);
 
 module.exports = router

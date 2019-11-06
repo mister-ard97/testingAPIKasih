@@ -64,17 +64,19 @@ module.exports = {
         // bisa dari token juga (req.user.userId)
 
         // console.log('masik')
-        var { page, limit, sortMethod} = req.query;
-        if(!sortMethod){
-            sortMethod='ASC'
-        }
-        var offset=(page*limit)-limit
 
-      
+        var { page, limit, name, date} = req.body;
+        
+  
+        var offset = (page * limit) - limit
+        console.log(req.body)
+        console.log(offset)
+
         Project.findAll({
             limit:parseInt(limit),
+            // limit : 10,
             offset:offset,
-            order:[['id',sortMethod]],
+            subQuery: false,
             attributes : [
                 ["name", "projectName"],
                 ["id", "projectId"],
@@ -83,26 +85,41 @@ module.exports = {
                 "projectEnded",
                 "totalTarget",
                 "projectImage",
-                [sequelize.fn('datediff', sequelize.col('projectEnded') ,  sequelize.fn("NOW")), 'SisaHari']
+                "shareDescription",
+                [sequelize.fn('datediff', sequelize.col('projectEnded') ,  sequelize.fn("NOW")), 'SisaHari'],
+                [sequelize.fn('SUM', sequelize.col('Payments.nominal')), 'totalNominal'],
+                [sequelize.fn('COUNT', sequelize.col('Payments.id')), 'totalDonasi']
+
+
             ],
-            
-
+            include : 
+                [
+                    {
+                        model : Payment,
+                        attributes : []
+                    },
+                    {
+                        model : User,
+                        attributes : [
+                            ["nama", "projectCreator"]
+                        ]
+                    }
+                ]
+            ,
             where : {
-                isDeleted : 0
+                name : {
+                    [Op.like] : `%${name}%`
+                },
+                userId: req.user.userId,
+                isDeleted : 0,
+                isGoing : 1
             },
-            include : [{
-                model : User,
-                attributes : [
-                    ["nama", "projectCreator"]
-                ],
-                where : {
-                    id: req.user.userId,
-                    role: 'User Admin'
-                }
-            }]
-
+            order : [['projectCreated', `${date}`]],
+            // order : !date ? [['id', 'asc']] : [['projectCreated', `${date}`]],
+            group : ['id']
         })
         .then((result)=>{
+            console.log(result)
             Project.count(
                 {where : {
                     isDeleted : 0
@@ -157,6 +174,7 @@ module.exports = {
 
                 })
                 .then((result)=>{
+                    console.log(result)
                     Project.count(
                         {where : {
                             isDeleted : 0
@@ -303,6 +321,7 @@ module.exports = {
 
         var { page, limit, name, date} = req.body;
         
+  
         var offset = (page * limit) - limit
         console.log(req.body)
         console.log(offset)
@@ -324,6 +343,8 @@ module.exports = {
                 [sequelize.fn('datediff', sequelize.col('projectEnded') ,  sequelize.fn("NOW")), 'SisaHari'],
                 [sequelize.fn('SUM', sequelize.col('Payments.nominal')), 'totalNominal'],
                 [sequelize.fn('COUNT', sequelize.col('Payments.id')), 'totalDonasi']
+
+
             ],
             include : 
                 {
@@ -339,6 +360,7 @@ module.exports = {
                 isGoing : 1
             },
             order : [['projectCreated', `${date}`]],
+            // order : !date ? [['id', 'asc']] : [['projectCreated', `${date}`]],
             group : ['id']
         })
         .then((results)=>{
@@ -368,5 +390,27 @@ module.exports = {
             console.log(err)
             return res.status(500).send({message : err})
         })
+    },
+    generateImgUrlquill(req,res){
+        const path = '/post/image/project/Quill'; //file save path
+        const upload = uploader(path, 'PQuil').fields([{ name: 'image'}]); //uploader(path, 'default prefix')
+
+        upload(req, res, (err) => {
+
+            if(err){
+                console.log('masuk2')
+                return res.status(500).json({ message: 'Upload picture failed !', error: err.message });
+            }
+            const { image } = req.files;
+            console.log(image)
+            const imagePath = image ? path + '/' + image[0].filename : null;
+            console.log(imagePath)
+            if(imagePath){
+                return res.status(200).send(imagePath)
+            }else{
+                return res.status(404).send('error')
+            }
+        })  
     }
+
 }

@@ -12,7 +12,9 @@ module.exports = (sequelize, DataTypes) => {
     scholarshipStart: DataTypes.DATE,
     scholarshipEnded: DataTypes.DATE,
     isVerified: DataTypes.INTEGER,
-    isOngoing: DataTypes.INTEGER
+    isOngoing: DataTypes.INTEGER,
+    status : DataTypes.STRING,
+    note: DataTypes.STRING
   }, {});
   scholarship.associate = function(models) {
     // associations can be defined here

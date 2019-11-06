@@ -19,8 +19,7 @@ module.exports = {
     studentDetailController,
     testcontroller,
     studentRevisionController,
-    studentDetailRevisionController,
-    subscriptionController,
     scholarshipController,
-
+    studentDetailRevisionController,
+    subscriptionController
 }

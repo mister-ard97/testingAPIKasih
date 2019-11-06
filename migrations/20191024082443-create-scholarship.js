@@ -56,12 +56,15 @@ module.exports = {
         type: Sequelize.DATE
       },
       isVerified: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         defaultValue: 0
       },
       isOngoing: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         defaultValue: 0
+      },
+      note: {
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,

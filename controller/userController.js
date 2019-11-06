@@ -1,5 +1,5 @@
 
-const { User, Sequelize, sequelize, School, Project, Payment, Subscription } = require('../models');
+const { User, Sequelize, sequelize, School, Project, Payment, Subscription, scholarship, Student } = require('../models');
 const Op = Sequelize.Op
 const Crypto = require('crypto');
 
@@ -23,7 +23,7 @@ const createPdf = async (obj, cb) => {
     // let objObj = JSON.parse(JSON.stringify(obj)) //Forces get of Datavalues
     
 
-    var { email , username, id , nominalSubscription, date} = obj
+    var { email , username, id , nominalSubscription, date, namamurid, judulscholarship, nominalscholarship} = obj
     try{ 
         const replacements = {
             PaymentReceiptNumber: id,
@@ -35,6 +35,13 @@ const createPdf = async (obj, cb) => {
             PayTo: `Kasih Nusantara`,
             NumberDetails: 123456,
             Nominal:nominalSubscription.toString().toLocaleString(),
+
+            //
+            NamaMurid : namamurid,
+            JudulScholarship : judulscholarship,
+            NominalScholarship : nominalscholarship,
+
+            //
 
             logo: 'file:///' +  path.resolve('./emails') + '/supports/logowithtext.png',
             instagramlogo: 'file:///' +  path.resolve('./emails') + '/supports/instagram_icon.png',
@@ -69,10 +76,10 @@ const mailInvoice = async (obj, PDF_STREAM) => {
     try{
         // const { transaction, voucher } = paymentObj
         // const { programSales, subscriptionSales, serviceSales } = transaction
-        var { email , username, id , nominalSubscription, date} = obj
+        var { email , username, id , nominalSubscription, date, namamurid, judulscholarship, nominalscholarship} = obj
 
         let subject = "Payment Receipt kasihnusantara"
-        let InvoiceNumber =012334556
+        let InvoiceNumber = 012334556
         let NumberDetails = `ACC: ${12345} - ${12333}` //nomr bisa diganti
         let Description = ['dadsasd','dadadasd']
 
@@ -88,6 +95,11 @@ const mailInvoice = async (obj, PDF_STREAM) => {
             PayTo: `Kasih Nusantara`,
             NumberDetails: NumberDetails,
             Nominal:nominalSubscription.toString().toLocaleString(),
+            
+
+            NamaMurid : namamurid,
+            JudulScholarship : judulscholarship,
+            NominalScholarship : nominalscholarship,
         }
 
         let attachments = [
@@ -708,6 +720,7 @@ module.exports = {
             return res.status(500).json({ message: "There's an error on the server. Please contact the administrator.", error: err.message });
         })
     },
+
     // getSubscription : (req,res) => {
     //     User.findOne({
     //         where: {
@@ -734,15 +747,42 @@ module.exports = {
     //         res.send('success')
     //     })
     // },
+
     getSubscription : (req,res) => {
-        User.findOne({
+        // cek user ketika user udah subscribe ke scholarship atau belum.
+        // berarti butuh get dari Subscription dan butuh req.user.userId dan params.id untuk get data subscriptionnya.
+ 
+        // User.findOne({
+        //     where: {
+        //         email: req.body.email
+        //     },
+        //     attributes: ['subscriptionStatus', 'subscriptionNominal']
+        // }).then((results) => {
+        //     res.send(results)
+        // })
+        Subscription.findOne({
             where: {
-                email: req.body.email
-            },
-            attributes: ['subscriptionStatus', 'subscriptionNominal']
-        }).then((results) => {
-            res.send(results)
+                userId: req.user.userId
+            }
         })
+        .then((result) => {
+            console.log(result)
+            let status;
+            if(result) {
+                console.log('User ini telah subscribe')
+                status = 1
+            } else {
+                console.log('User ini belum subscribe ke scholarship ini')
+                status = 0
+            }
+            return res.status(200).send({
+                status           
+            })
+        })
+        .catch((err) => {
+            console.log(err)
+        })
+ 
     },
 
     applySubscription : (req,res) => {
@@ -780,19 +820,45 @@ module.exports = {
                         ]
                     },
             
-                    attributes : ['id', 'scholarshipId', 'nominalSubscription', 'remainderDate', 'monthLeft'],
+                    attributes : [
+                        'id',
+                        'scholarshipId',
+                        'nominalSubscription',
+                        'remainderDate',
+                        'monthLeft',
+                        [sequelize.col('scholarship.judul'), 'judulscholarship'],
+                        [sequelize.col('scholarship.nominal'), 'nominalscholarship'],
+                        [sequelize.col('scholarship->student.name'), 'namamurid']
+
+                    ],
                     include : [
                         {
                             model : User,
-                            require : true,
+                            required : true,
                             attributes : [['nama', 'username'], 'email'],
                             where : {
                                 verified : 1
                             }
+                        },
+                        {
+                            model : scholarship,
+                            required : true,
+                            attributes : [],
+                            where : {
+                                isOngoing : 1
+                            },
+                            include : [
+                                {
+                                    model : Student,
+                                    attributes : [],
+                                    required : true
+                                }
+                            ]
                         }
                     ]
             
                 })
+                console.log(res)
         
                 // console.log(res[0].dataValues.User.dataValues)
         
@@ -1019,6 +1085,119 @@ module.exports = {
                 console.log('error')
             })
         }).catch((err)=>{
+            console.log('errors')
+        })
+
+
+       
+    },
+    scholarshipCheck : (req,results) =>{ 
+        
+        scholarship.findAll({
+
+            subQuery: false,
+            attributes : [
+                "id",
+               
+                "nominal",
+                "durasi",
+          
+                "studentId",
+         
+                "scholarshipStart",
+                "scholarshipEnded",
+                [sequelize.fn('datediff', sequelize.col('scholarshipEnded') ,  sequelize.col('scholarshipStart')), 'SisaHari'],
+                // [sequelize.fn('SUM', sequelize.col('Subscriptions.nominalSubscription')), 'currentSubs'],
+                [sequelize.fn('SUM', sequelize.col('Payments.nominal')), 'totalpayment'],
+                [sequelize.fn('COUNT', sequelize.col('Payments.id')), 'jumlahdonation']
+  
+      
+            ],
+            
+            include : [
+            {
+                model : Subscription,
+                attributes :   ['nominalSubscription',[sequelize.fn('SUM', sequelize.col('nominalSubscription')), 'currentSubs']], 
+                            
+                separate : true,
+                group : ['scholarshipId']
+                // include : [
+                //     {
+                //         model : scholarship,
+                //         attributes : [],
+                //         where : {
+                //             isOngoing : 1
+                //         }
+                //     }
+                // ],
+
+            
+            },
+            {
+                model : Payment,
+                attributes : []
+            }
+            ],
+            where : {
+                isOngoing : 1,
+                // isDeleted : 0,
+                // isGoing : 1
+            },
+            group : ['id']
+             
+        }).then((res)=>{
+
+            console.log(res)
+        
+   
+            var listscholarship = res.map((val)=>{
+      
+                    if(val.dataValues.Subscriptions.length !== 0){
+                        var hasil = {...val.dataValues, ...val.dataValues.Subscriptions[0].dataValues}
+                        hasil.grandtotal = parseInt(hasil.totalpayment) + parseInt(hasil.currentSubs)
+                    }else{
+                        var hasil = {...val.dataValues }
+                        hasil.grandtotal = parseInt(hasil.totalpayment)
+                    }
+                
+                    // if(parseInt(hasil.totalpayment) + parseInt(hasil.currentSubs) >= hasil.nominal || hasil.SisaHari === 0){
+                    //     return hasil.id
+                    // }
+                    delete hasil.Subscriptions
+                    return hasil
+                
+            })
+
+            console.log(listscholarship)
+
+            listscholarship = listscholarship.filter(function(e){
+                return e.grandtotal >= e.nominal || e.SisaHari === 0
+            })
+
+            var scholarshipStop = listscholarship.map((e)=> e.id)
+            console.log(scholarshipStop)
+            
+     
+
+   
+
+            scholarship.update({
+                isOngoing : 0
+            }, {
+                where : {
+                    id : {
+                        [Op.in] : scholarshipStop
+                    }
+                }
+            }).then((res)=>{
+                console.log('success')
+            }).catch((err)=>{
+                console.log('error')
+            })
+
+
+        }).catch((err)=>{
+            console.log(err)
             console.log('errors')
         })
 

@@ -8,7 +8,8 @@ router.get('/getstudentdata',stundentController.getStudentdata)
 router.post('/getstudentdatapaging',auth,stundentController.getStudentdatapaging)
 router.put('/putstudentdata/:id',stundentController.putStudentdata)
 router.delete('/deletestudentdata/:id',stundentController.deleteStudentdata)
-router.get('/getstudentperuser', auth, stundentController.getStudentPerUser)
+router.get('/getstudentperuser', stundentController.getStudentPerUser)
+
 
 
 module.exports=router

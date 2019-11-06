@@ -111,6 +111,7 @@ module.exports={
                     // console.log(image)
                     const imagePath = image ? path + '/' + image[0].filename : null;
                     const data = JSON.parse(req.body.data);
+                    console.log(imagePath)
                     try {
                         if(imagePath) {
                             data.studentImage = imagePath;
@@ -128,23 +129,23 @@ module.exports={
                                 console.log('masuk')
                                 fs.unlinkSync('./public' + result[0].studentImage);
                             }
-                            Student.findAll(
-                                {
-                                    attributes:{
-                                        exclude:['createdAt','updatedAt']
-                                    },
-                                    where:{
-                                        isDeleted:0
-                                    }
+                            // Student.findAll(
+                            //     {
+                            //         attributes:{
+                            //             exclude:['createdAt','updatedAt']
+                            //         },
+                            //         where:{
+                            //             isDeleted:0
+                            //         }
                             
-                                }
-                            )
-                            .then((result1)=>{
-                                console.log('berhasil')
-                                return res.status(200).send(result1)
-                            }).catch((err)=>{
-                                res.status(500).send({message:'error post', error:err})
-                            })
+                            //     }
+                            // )
+                            // .then((result1)=>{
+                            //     console.log('berhasil')
+                            return res.status(200).send(result2)
+                            // }).catch((err)=>{
+                            //     return res.status(500).send({message:'error post', error:err})
+                            // })
                             // return res.status(200).send(result1)
                         }).catch((err)=>{
                             if(imagePath) {
@@ -208,6 +209,10 @@ module.exports={
                
                 }
             ],
+            where : {
+                // userId,
+                isDeleted : 0
+            }
             // where:{
             //     isDeleted:0,
             //     // pendidikanTerakhir : {
@@ -228,8 +233,7 @@ module.exports={
     getStudentPerUser : (req, res) => {
         console.log('masuk sini')
         // const {userId} = req.body
-        // pake auth jadinya. req.user.userId
-        console.log(req.query)
+        // console.log(req.query)
         Student.findAll({
             attributes: [
                 'id',
@@ -237,7 +241,7 @@ module.exports={
                 'pendidikanTerakhir',
             ],
             where : {
-                userId: req.user.userId,
+                userId: req.query.id,
                 isDeleted: 0
             }
         })
