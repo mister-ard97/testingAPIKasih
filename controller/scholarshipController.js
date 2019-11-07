@@ -165,8 +165,8 @@ module.exports = {
     // },
     getScholarshipDetail:(req,res) => {
         const {id} = req.query
-        // console.log('---------------> masuk secDetail')
-        // console.log(req.query)
+        console.log('---------------> masuk secDetail')
+        console.log(req.query)
         sequelize.transaction(function(t){
             return(
                 scholarship.findAll({
@@ -179,6 +179,7 @@ module.exports = {
                         "studentId",
                         "shareDescription",
                         "scholarshipStart",
+                        // "paymentSource",
                         "scholarshipEnded",
                         [sequelize.fn('datediff', sequelize.col('scholarshipEnded') ,  sequelize.col('scholarshipStart')), 'SisaHari'],
                         // [sequelize.fn('SUM', sequelize.col('Subscriptions.nominalSubscription')), 'currentSubs'],
@@ -198,20 +199,20 @@ module.exports = {
                     {
                         model : School,
                         attributes : [
-                            ["nama", "namaSekolah"]
+                            ["nama", "namaSekolah"], "namaPemilikRekening", "nomorRekening" , "bank", "email"
                         ]
                     },
-                    {
-                        model : Subscription,
-                        attributes :   [
-                            'nominalSubscription',
-                            [sequelize.fn('SUM', sequelize.col('nominalSubscription')), 'currentSubs']
-                        ], 
-                        group : ['scholarshipId'],
+                    // {
+                    //     model : Subscription,
+                    //     attributes :   [
+                    //         'nominalSubscription',
+                    //         [sequelize.fn('SUM', sequelize.col('nominalSubscription')), 'currentSubs']
+                    //     ], 
+                    //     group : ['scholarshipId'],
                        
                                     
-                        separate : true
-                    },
+                    //     separate : true
+                    // },
                     {
                         model : Payment,
                         attributes : []
@@ -228,7 +229,7 @@ module.exports = {
                 })
 
                 .then((result) => {
-                    // console.log(result)
+                    console.log(result)
                     return res.status(200).send(result)
                 }).catch((err)=>{
                     return res.status(500).send({message: err})
@@ -258,6 +259,7 @@ module.exports = {
                         "studentId",
                         "shareDescription",
                         "scholarshipStart",
+                        // "paymentSource",
                         "scholarshipEnded",
                         [sequelize.fn('datediff', sequelize.col('scholarshipEnded') ,  sequelize.col('scholarshipStart')), 'SisaHari'],
                         // [sequelize.fn('SUM', sequelize.col('Subscriptions.nominalSubscription')), 'currentSubs'],
@@ -288,7 +290,7 @@ module.exports = {
                     //         'nominalSubscription',
                     //         [sequelize.fn('SUM', sequelize.col('nominalSubscription')), 'currentSubs']
                     //     ], 
-                    //     group : ['scholarshipId'], 
+                    //     group : ['scholarshipId'],    
                     //     separate : true
                     // },
                     {
@@ -297,7 +299,6 @@ module.exports = {
                     }
                     ],
                     where : {
-                        // isOngoing : 1,
                         judul : {
                             [Op.like] : `%${name}%`
                         },
@@ -312,8 +313,31 @@ module.exports = {
                 .then((result) => {
                     // console.log(result[0].dataValues.Subscriptions.length)
                     // console.log(result[0].dataValues.Subscriptions[0].dataValues)
-                    console.log('aaaaaaaaaaaaaaaaaaaaa')
-                    return res.status(200).send(result)
+                    // return res.status(200).send(result)
+                    // console.log(result)
+                    // Kurang Counting
+                    
+                    // return res.status(200).send(result)
+
+                    // scholarship.count({
+                    //     where : {
+                    //         judul : {
+                    //             [Op.like] : `%${name}%`
+                    //         },
+                    //         isOngoing : 1,
+                    //         isVerified: 1
+                    //     }
+                    // })
+                    // .then((resultTotalScholarship) => {
+                    //     var total = resultTotalScholarship;
+
+                        // return res.status(200).send({message: 'Success Get All Scholarship', result, total})
+                        return res.status(200).send(result)
+                    // })
+                    // .catch((err) => {
+                    //     console.log(err)
+                    //     return res.status(500).send({message: err})
+                    // })
                 }).catch((err)=>{
                     console.log(err)
                     return res.status(500).send({message: err})

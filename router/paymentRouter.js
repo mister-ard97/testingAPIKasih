@@ -16,5 +16,7 @@ router.get('/getSubscription', paymentController.getSubscription)
 router.post('/applySubscription', paymentController.applySubscription);
 router.post('/payout', paymentController.payout)
 router.post('/beneficiaries', paymentController.createBeneficiaries)
+router.get('/beneficiary_banks', paymentController.getListBank)
+router.post('/validateBankAccount', paymentController.validateBankAccount)
 
 module.exports = router;

@@ -12,7 +12,7 @@ const snap = new midtransClient.Snap({
 module.exports = {
     //====================// midtrans //====================
     getSnapMd : (req, res) => {
-        let { projectId, userId, komentar, anonim, scholarshipId} = req.body.userData
+        let { projectId, userId, komentar, anonim, scholarshipId, paymentSource} = req.body.userData
         let { gross_amount, order_id} = req.body.parameter.transaction_details
         let { parameter } = req.body
         console.log('masuk get token midtrans')
@@ -32,6 +32,7 @@ module.exports = {
                 paymentType: 'pending',
                 nominal: gross_amount,
                 statusPayment: 'pending',
+                paymentSource,
                 projectId: projectId ? projectId : null,
                 scholarshipId: scholarshipId ? scholarshipId : null,
                 userId: userId,
@@ -251,7 +252,7 @@ module.exports = {
     },
 
     payout:(req,res)=>{
-        console.log('--------------------------> masuk payout')
+        // console.log('--------------------------> masuk payout')
         console.log(req.body)
         Axios({
             headers: {
@@ -274,7 +275,7 @@ module.exports = {
                 })
 
     },
-    createBeneficiaries:(req,res)=>{
+    createBeneficiaries:  (req,res)=>{
         console.log('--------------------------> masuk Beneficiaries')
         console.log(req.body)
         Axios({
@@ -287,23 +288,63 @@ module.exports = {
             auth: {
               username: 'IRIS-83f135ed-3513-47bf-81bb-a071822ee68f'
             },
-            data: {
-                "name": "Nusa",
-                "account": "998999893",
-                "bank": "bca",
-                "alias_name": "nusa",
-                "email": "nusa@benefecary.com"
-              }
+            data: req.body
             })
             .then((ress)=>{
                     console.log(ress.data)
                     return res.status(200).send(ress.data)
                 }).catch((err)=>{
+                    // console.log('----error cuy')
                     console.log(err)
-                    return res.status(400).send(err)
+                    // console.log(err.response.data)
+                    return res.status(400).send({message: err.response.data})
                 })
-
     },
+    getListBank : (req, res) => {
+        console.log('-------------- > list bank')
+        Axios({
+            headers: {
+              'Content-Type': 'application/json',
+              "Accept":"application/json",
+            },
+            method: 'get',
+            url: 'https://app.sandbox.midtrans.com/iris/api/v1/beneficiary_banks',
+            auth: {
+              username: 'IRIS-83f135ed-3513-47bf-81bb-a071822ee68f'
+            }
+        })
+        .then((ress)=>{
+                // console.log(ress.data)
+                return res.status(200).send(ress.data)
+            }).catch((err)=>{
+                console.log(err)
+                return res.status(400).send(err)
+        })
+    },
+    validateBankAccount : (req, res) => {
+        console.log('------------------------ validate bank account')
+        const {code, account} = req.body
+        console.log(req.body)
+        Axios({
+            headers: {
+                "Content-Type":"application/json",
+                "Accept":"application/json",
+                "Cache-Control": "no-cache"
+            },
+            method: 'get',
+            url: `https://app.sandbox.midtrans.com/iris/api/v1//account_validation?bank=${code}&account=${account}`,
+            auth: {
+              username: 'IRIS-83f135ed-3513-47bf-81bb-a071822ee68f'
+            }
+        })
+        .then((ress)=>{
+            // console.log(ress.data)
+            return res.status(200).send(ress.data)
+        }).catch((err)=>{
+            console.log(err)
+            return res.status(400).send({message: err.response.data})
+    })
+    }
 
 
     

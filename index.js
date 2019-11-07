@@ -6,7 +6,6 @@ var io = require('socket.io').listen(server);
 const port = 2019
 const bodyParser = require('body-parser')
 const cors = require('cors')
-
 const bearerToken = require('express-bearer-token');
 
 require('./scheduler/schedulers')
@@ -39,7 +38,8 @@ const {
     studentRevisionRouter,
     scholarshipRouter,
     studentDetailRevisionRouter,
-    subscriptionRouter
+    subscriptionRouter,
+    schoolRouter
 } = require('./router')
 
 
@@ -54,7 +54,7 @@ app.use('/studentrev', studentRevisionRouter)
 app.use('/scholarship', scholarshipRouter)
 app.use('/studentdetailrev', studentDetailRevisionRouter);
 app.use('/subscription', subscriptionRouter);
-
+app.use('/school', schoolRouter)
 
 console.log('masuk io')
 io.on('connection', (socket) => {

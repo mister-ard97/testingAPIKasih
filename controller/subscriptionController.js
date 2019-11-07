@@ -31,28 +31,29 @@ module.exports = {
     userSubscribe :  (req,res) =>{
         // console.log(req.body)
         // const { scholarshipId, userId, nominalSubscription, remainderDate, monthLeft } = req.body
+        console.log(req.body)
         const { parameter, userData } = req.body
         console.log(parameter)
         // console.log(userData) 
         const { gross_amount } = parameter.transaction_details
         const nominalSubscription = gross_amount
-        const { userId, scholarshipId, remainderDate, monthLeft } = userData
+        const { userId, scholarshipId, remainderDate, monthLeft, paymentSource } = userData
 
         
-        // Subscription.create({
-        //     scholarshipId,
-        //     userId,
-        //     nominalSubscription,
-        //     remainderDate,
-        //     monthLeft
-        // }).then((results)=>{
-        //     console.log('success insert ')
-        //     return res.status(200).send(results);
+        Subscription.create({
+            scholarshipId,
+            userId,
+            nominalSubscription,
+            remainderDate,
+            monthLeft
+        }).then((results)=>{
+            console.log('success insert ')
+            return res.status(200).send(results);
 
 
-        // }).catch((err)=>{
-        //     return res.status(500).send(err);
-        // })  
+        }).catch((err)=>{
+            return res.status(500).send(err);
+        })  
 
 
 
@@ -70,6 +71,26 @@ module.exports = {
                 monthLeft
             }).then((result)=>{
                 console.log('asudhauishd')
+
+                Payment.create({
+                    paymentType,
+                    paymentSource,
+                    nominal : nominalSubscription, //
+                    statusPayment : "Pending", 
+                    scholarshipId, // 
+                    userId, //
+                    order_id
+                }).then((result)=>{
+                    console.log('finish subscription insert ')
+                    
+                    return res.status(200).send({result})
+        
+        
+                
+                }).catch((err)=>{
+                    console.log(err)
+                    return res.status(500).send(err)
+                })
                 
                 return res.status(200).send({transactionToken, order_id: parameter.transaction_details.order_id})
 
@@ -228,5 +249,37 @@ module.exports = {
             console.log(err)
             res.status(500).send(err)
         }
+    },
+
+    subscriptionPayment : (req,res ) =>{
+        console.log('subscription payment ')
+        const {
+            paymentType,
+            paymentSource,
+            nominal,
+            statusPayment,
+            scholarshipId,
+            userId,
+            order_id
+        } = req.body
+        Payment.create({
+            paymentType,
+            paymentSource,
+            nominal,
+            statusPayment,
+            scholarshipId,
+            userId,
+            order_id
+        }).then((result)=>{
+            console.log('finish subscription insert ')
+            
+            return res.status(200).send({result})
+
+
+        
+        }).catch((err)=>{
+            console.log(err)
+            return res.status(500).send(err)
+        })
     }
 }

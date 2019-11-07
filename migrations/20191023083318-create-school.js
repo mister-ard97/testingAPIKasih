@@ -32,6 +32,18 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      email: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      isVerified: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      isDeleted: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
