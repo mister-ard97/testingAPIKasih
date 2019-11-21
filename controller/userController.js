@@ -194,10 +194,10 @@ module.exports = {
 
                                 console.log(tokenJwt)
 
-                                let linkVerifikasi = `http://localhost:3000/verified/${tokenJwt}`;
+                                // let linkVerifikasi = `http://localhost:3000/verified/${tokenJwt}`;
                                 
                                 //untuk live
-                                //let linkVerifikasi = `https://sharex.purwadhikax.com/verified/${tokenJwt}`
+                                let linkVerifikasi = `https://sharex.purwadhikax.com/verified/${tokenJwt}`
                         
                                 let mailOptions = {
                                     from: 'KasihNusantara Admin <rezardiansyah1997@gmail.com>',
@@ -319,9 +319,9 @@ module.exports = {
 
             if(dataUser.dataValues) {
                 const tokenJwt = createJWTToken({ userId: dataUser.dataValues.id, email: dataUser.dataValues.email })
-                let linkVerifikasi = `http://localhost:3000/verified/${tokenJwt}`;
+                // let linkVerifikasi = `http://localhost:3000/verified/${tokenJwt}`;
                 //untuk live
-                //let linkVerifikasi = `https://sharex.purwadhikax.com/verified/${tokenJwt}`
+                let linkVerifikasi = `https://sharex.purwadhikax.com/verified/${tokenJwt}`
         
                 let mailOptions = {
                     from: 'KasihNusantara Admin <rezardiansyah1997@gmail.com>',
@@ -456,9 +456,9 @@ module.exports = {
 
                 const tokenPassword = createForgotPasswordToken({ userId: dataUser.id, email: dataUser.email })
 
-                let linkVerifikasi = `http://localhost:3000/verifiedReset?token=${tokenPassword}`;
+                // let linkVerifikasi = `http://localhost:3000/verifiedReset?token=${tokenPassword}`;
                 //untuk live
-                //let linkVerifikasi = `https://sharex.purwadhikax.com/verifiedReset?token=${tokenPassword}`
+                let linkVerifikasi = `https://sharex.purwadhikax.com/verifiedReset?token=${tokenPassword}`
 
                 let mailOptions = {
                     from: 'TestingUi Admin <rezardiansyah1997@gmail.com>',
