@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
     studentId: DataTypes.INTEGER,
     schoolId: DataTypes.INTEGER,
     userId: DataTypes.INTEGER,
+    currentValue : DataTypes.INTEGER,
     nominal: DataTypes.INTEGER,
     durasi: DataTypes.INTEGER,
     description: DataTypes.STRING,
@@ -17,11 +18,11 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   scholarship.associate = function(models) {
     // associations can be defined here
-    scholarship.belongsTo(models.School, { foreignKey : 'schoolId'})
     scholarship.belongsTo(models.User, { foreignKey : 'userId'})
     scholarship.belongsTo(models.Student, { foreignKey : 'studentId'})
     scholarship.hasMany(models.Subscription, {foreignKey : 'scholarshipId'})
     scholarship.hasMany(models.Payment, {foreignKey : 'scholarshipId'})
+    scholarship.hasMany(models.Payout, {foreignKey : 'scholarshipId'})
   };
   return scholarship;
 };

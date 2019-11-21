@@ -52,12 +52,65 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true
       },
-      schoolId: {
-        type: Sequelize.INTEGER,
-        references : {
-          model : 'Schools',
-          key : 'id'
-        },
+      shareDescription : {
+        type : Sequelize.STRING,
+        allowNull : false
+      },
+      nomorRekening : {
+        type : Sequelize.STRING,
+        allowNull : false
+      },
+      pemilikRekening : {
+        type : Sequelize.STRING,
+        allowNull : false
+      },
+      alamatSekolah : {
+        type : Sequelize.STRING,
+        allowNull : false
+      },
+      bank : {
+        type : Sequelize.STRING,
+        allowNull : false
+      },
+      cabangBank : {
+        type : Sequelize.STRING,
+        allowNull : false
+      },
+      teleponSekolah : {
+        type : Sequelize.STRING,
+        allowNull : false
+      },
+      namaSekolah : {
+        type : Sequelize.STRING,
+        allowNull : false
+      },
+      kartuSiswa : {
+        type : Sequelize.STRING,
+        allowNull : false
+      },
+      raportTerakhir : {
+        type : Sequelize.STRING,
+        allowNull : false
+      },
+      kartuKeluarga : {
+        type : Sequelize.STRING,
+        allowNull : false
+      },
+      jumlahSaudara : {
+        type : Sequelize.INTEGER,
+        allowNull : false
+      },
+      biayaSekolah : {
+        type : Sequelize.INTEGER,
+        allowNull : false
+      },
+      kelas : {
+        type : Sequelize.STRING,
+        allowNull : false
+      },
+      dataPenghasilan : {
+        type : Sequelize.STRING,
+        allowNull : false
       },
       dataStatus: {
         type: Sequelize.STRING,

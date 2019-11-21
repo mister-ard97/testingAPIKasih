@@ -22,6 +22,10 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false
       },
+      currentValue : {
+        type: Sequelize.INTEGER,
+        allowNull: true
+      },
       totalTarget: {
         type: Sequelize.INTEGER,
         allowNull: false

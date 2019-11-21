@@ -43,7 +43,8 @@ module.exports = {
         //     studentid : 1,
 
         // }
-        console.log('update approve')
+        console.log('updateee approve')
+        console.log(req.body)
         return sequelize.transaction(function (t){
             return StudentRevision.update({
                 isDeleted : 1
@@ -176,7 +177,7 @@ module.exports = {
             //     fs.unlinkSync('./public' + data.oldimg);
             // }
            
-            const {name,pendidikanTerakhir,gender,status,alamat,tanggalLahir,userId,story,schoolId,studentImage,studentId, dataStatus}=data.result[0]
+            const {name,pendidikanTerakhir,gender,status,alamat,tanggalLahir,userId,story,schoolId,studentImage,studentId, dataStatus, provinsi}=data.result[0]
             console.log(name)
             return sequelize.transaction(function (t){
                 return StudentRevision.create({
@@ -185,6 +186,7 @@ module.exports = {
                     gender:gender,
                     status,
                     alamat,
+                    provinsi,
                     tanggalLahir:Moment(tanggalLahir),
                     userId,
                     story,

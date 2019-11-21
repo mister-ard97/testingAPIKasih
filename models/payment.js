@@ -13,7 +13,8 @@ module.exports = (sequelize, DataTypes) => {
     isDeleted: DataTypes.INTEGER,
     order_id: DataTypes.STRING,
     komentar: DataTypes.STRING,
-    isAnonim: DataTypes.INTEGER
+    isAnonim: DataTypes.INTEGER,
+    noPembayaran: DataTypes.STRING
   }, {});
   Payment.associate = function(models) {
     // associations can be defined here

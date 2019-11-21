@@ -21,7 +21,8 @@ module.exports = {
         type: Sequelize.DATE
       },
       isCancelled: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        defaultValue: 0
       },
       cancelledDate: {
         type: Sequelize.DATE

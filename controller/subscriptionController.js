@@ -1,4 +1,4 @@
-
+ 
 const { User, Sequelize, sequelize, School, Project, Payment, Subscription, scholarship, Student } = require('../models');
 const Op = Sequelize.Op
 const Crypto = require('crypto');
@@ -35,25 +35,25 @@ module.exports = {
         const { parameter, userData } = req.body
         console.log(parameter)
         // console.log(userData) 
-        const { gross_amount } = parameter.transaction_details
+        const { gross_amount, order_id } = parameter.transaction_details
         const nominalSubscription = gross_amount
         const { userId, scholarshipId, remainderDate, monthLeft, paymentSource } = userData
 
         
-        Subscription.create({
-            scholarshipId,
-            userId,
-            nominalSubscription,
-            remainderDate,
-            monthLeft
-        }).then((results)=>{
-            console.log('success insert ')
-            return res.status(200).send(results);
+        // Subscription.create({
+        //     scholarshipId,
+        //     userId,
+        //     nominalSubscription,
+        //     remainderDate,
+        //     monthLeft
+        // }).then((results)=>{
+        //     console.log('success insert ')
+        //     return res.status(200).send(results);
 
 
-        }).catch((err)=>{
-            return res.status(500).send(err);
-        })  
+        // }).catch((err)=>{
+        //     return res.status(500).send(err);
+        // })  
 
 
 
@@ -68,12 +68,13 @@ module.exports = {
                 userId,
                 nominalSubscription,
                 remainderDate,
+                isCancelled: 0,
                 monthLeft
             }).then((result)=>{
                 console.log('asudhauishd')
 
                 Payment.create({
-                    paymentType,
+                    paymentType : 'pending',
                     paymentSource,
                     nominal : nominalSubscription, //
                     statusPayment : "Pending", 
@@ -83,8 +84,8 @@ module.exports = {
                 }).then((result)=>{
                     console.log('finish subscription insert ')
                     
-                    return res.status(200).send({result})
-        
+                    // return res.status(200).send({result})
+                    return res.status(200).send({transactionToken, order_id: parameter.transaction_details.order_id})
         
                 
                 }).catch((err)=>{
@@ -92,7 +93,7 @@ module.exports = {
                     return res.status(500).send(err)
                 })
                 
-                return res.status(200).send({transactionToken, order_id: parameter.transaction_details.order_id})
+               
 
 
             
@@ -160,18 +161,18 @@ module.exports = {
                 return val.id
             })
 
-           var res2 = await  Subscription.findAll({
-                attributes : [
-                    [sequelize.fn('SUM', sequelize.col('nominalSubscription')), 'currentSubs']
-                ],
+        //    var res2 = await  Subscription.findAll({
+        //         attributes : [
+        //             [sequelize.fn('SUM', sequelize.col('nominalSubscription')), 'currentSubs']
+        //         ],
         
-                where : {
-                    scholarshipId  : {
-                        [Op.in] : listScholarId
-                    }
-                },
-                group : ['scholarshipId']
-            })
+        //         where : {
+        //             scholarshipId  : {
+        //                 [Op.in] : listScholarId
+        //             }
+        //         },
+        //         group : ['scholarshipId']
+        //     })
 
             var res3 = await Payment.findAll({
                 attributes : [
@@ -188,18 +189,18 @@ module.exports = {
 
             // KALAU ADA YANG TAU CARA BIKIN INI SEMUA DALAM SEKALI SEQUELIZE TOLONG DIUBAH YA :)
 
-            var subsScholar = res2.map((val)=>{
-                console.log(val)
-                return val.dataValues.currentSubs
-            })
+            // var subsScholar = res2.map((val)=>{
+            //     console.log(val)
+            //     return val.dataValues.currentSubs
+            // })
             var paymentDonations = res3.map((val)=>{
                 return [val.dataValues.scholarshipId ,val.dataValues.currentDonation]
             })
-            console.log(subsScholar)
+            // console.log(subsScholar)
             console.log(paymentDonations)
 
             for(var i = 0 ; i < hasil.length; i++){
-                hasil[i].currentSubs = parseInt(subsScholar[i])
+                // hasil[i].currentSubs = parseInt(subsScholar[i])
                 var totaldonation = 0
                 for(var y = 0 ; y < paymentDonations.length ; y++){
                     if(paymentDonations[y][0] === hasil[i].id){
@@ -272,14 +273,69 @@ module.exports = {
             order_id
         }).then((result)=>{
             console.log('finish subscription insert ')
+
             
             return res.status(200).send({result})
+
+
+            // setelah payment, 
+
+
+            // Subscription.update({
+            //     remainderDate : sequelize.fn('ADDDATE', sequelize.col('remainderDate'),sequelize.literal('INTERVAL 1 MONTH') ),
+            // },{
+            //     where : {
+            //         id : 1 // Subs_id
+            //     }
+            // }).then((res)=>{
+            //     console.log('asidjaisdjiajsd')
+            //     console.log(res)
+            //     return res.status(200).send({result})
+            // }).catch((err)=>{
+            //     return res.status(500).send({err})
+            // })
+
 
 
         
         }).catch((err)=>{
             console.log(err)
             return res.status(500).send(err)
+        })
+
+
+
+        
+            // Subscription.findAll({
+            //     attributes : [
+            //         [sequelize.fn('ADDDATE', sequelize.col('remainderDate'),sequelize.literal('INTERVAL 1 YEAR') ), 'harioi']
+            //     ],
+            //     where : {
+            //         id : 1
+            //     }
+            // }).then((res)=>{
+            //     console.log(res)
+            // }).catch((err)=>{
+            //     console.log(err)
+            // })
+
+            
+            // return res.status(200).send({result})
+    },
+
+    getUserSubscriptionNominal : (req,res) =>{
+        const { id } = req.body
+        const params = req.params.id
+        Subscription.findOne({
+            attributes : ['nominalSubscription'],
+            where : {
+                userId : id,
+                scholarshipId : params
+            }
+        }).then((result)=>{
+            return res.status(200).send({result})
+        }).catch((err)=>{
+            return res.status(500).send({message : 'Error database', error : err.message})
         })
     }
 }

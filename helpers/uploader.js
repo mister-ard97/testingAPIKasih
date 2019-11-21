@@ -1,6 +1,9 @@
 const multer = require('multer');
 const fs = require('fs');
 
+//Convert the file size to megabytes (optional)
+// var fileSizeInMegabytes = fileSizeInBytes / 1000000.0
+
 // Return multer object
 
 module.exports = {
@@ -19,6 +22,7 @@ module.exports = {
                 }
             },
             filename: (req, file, cb) => {
+                console.log(file)
                 let originalname = file.originalname;
                 let ext = originalname.split('.');
                 let filename = fileNamePrefix + Date.now() + '.' + ext[ext.length - 1];
@@ -27,7 +31,7 @@ module.exports = {
         });
     
         const imageFilter = (req, file, callback) => {
-            const ext = /\.(jpg|jpeg|png|gif|pdf|doc|docx|xlsx|svg)$/;
+            const ext = /\.(jpg|jpeg|png|gif|pdf|doc|docx|xlsx|svg|mp4|mp3)$/;
             if (!file.originalname.toLowerCase().match(ext)) {
                 return callback(new Error('Only selected file type are allowed'), false);
             }
@@ -36,7 +40,10 @@ module.exports = {
 
         return multer({
             storage: storage,
-            fileFilter: imageFilter
+            fileFilter: imageFilter,
+            limits : {
+                fileSize :  90 * 1024 * 1024 // maximum of 90 MB File
+            }
         });
     }
 }

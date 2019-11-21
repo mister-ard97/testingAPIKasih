@@ -12,12 +12,15 @@ router.post('/login', userController.userLogin);
 router.post('/loginGmail', userController.loginWithGoogle);
 router.post('/loginFacebook', userController.loginWithFacebook);
 router.get('/getschool', userController.getSchool);
+router.get('/getUser/:id', auth, userController.getDataUser);
+router.post('/editProfilePic', auth, userController.updateProfilePic);
+router.post('/editPhoneNumber', auth, userController.editPhoneNumber);
 
 router.post('/userForgotPassword', userController.getResetPasswordToken);
 router.get('/userGetResetToken', resetToken, userController.userCheckResetToken);
 router.post('/newPasswordUser', resetToken, userController.userResetPassword);
 router.post('/userChangePassword', auth, userController.userChangePassword);
 
-router.get('/getSubscription', auth, userController.getSubscription);
+router.get('/getSubscription/:id', auth, userController.getSubscription);
 
 module.exports = router

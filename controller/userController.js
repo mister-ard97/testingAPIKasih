@@ -23,7 +23,7 @@ const createPdf = async (obj, cb) => {
     // let objObj = JSON.parse(JSON.stringify(obj)) //Forces get of Datavalues
     
 
-    var { email , username, id , nominalSubscription, date, namamurid, judulscholarship, nominalscholarship} = obj
+    var { email , username, id , nominalSubscription, date, namamurid, judulscholarship, nominalscholarship, scholarshipId} = obj
     try{ 
         const replacements = {
             PaymentReceiptNumber: id,
@@ -38,8 +38,9 @@ const createPdf = async (obj, cb) => {
 
             //
             NamaMurid : namamurid,
-            JudulScholarship : judulscholarship,
+            JudulScholarship : encodeURIComponent(judulscholarship) , // Bantu Reeza sekolah Bantu%Reza%sekolah
             NominalScholarship : nominalscholarship,
+            scholarshipId : scholarshipId,
 
             //
 
@@ -76,7 +77,7 @@ const mailInvoice = async (obj, PDF_STREAM) => {
     try{
         // const { transaction, voucher } = paymentObj
         // const { programSales, subscriptionSales, serviceSales } = transaction
-        var { email , username, id , nominalSubscription, date, namamurid, judulscholarship, nominalscholarship} = obj
+        var { email , username, id , nominalSubscription, date, namamurid, judulscholarship, nominalscholarship, scholarshipId} = obj
 
         let subject = "Payment Receipt kasihnusantara"
         let InvoiceNumber = 012334556
@@ -96,9 +97,9 @@ const mailInvoice = async (obj, PDF_STREAM) => {
             NumberDetails: NumberDetails,
             Nominal:nominalSubscription.toString().toLocaleString(),
             
-
+            scholarshipId : scholarshipId,
             NamaMurid : namamurid,
-            JudulScholarship : judulscholarship,
+            JudulScholarship : encodeURIComponent(judulscholarship),
             NominalScholarship : nominalscholarship,
         }
 
@@ -244,6 +245,7 @@ module.exports = {
     },
 
     emailVerification: (req, res) => {
+        console.log('Masuk verification')
         User.findAll({
             where: {
                 id: req.user.userId,
@@ -252,10 +254,13 @@ module.exports = {
             }
         })
         .then((results) => {
-       
+            console.log(req.user)
+            
             if(results.length === 0) {
+                console.log('tidak dapat')
                 return res.status(500).send({ status: 'error', message: 'User not found' });
             } else {
+                console.log('dapat')
 
                 User.update(
                     {verified: 1},
@@ -273,6 +278,9 @@ module.exports = {
                         }
                     })
                     .then((dataUser) => {
+                 
+                        const tokenJwt = createJWTToken({ userId: dataUser.dataValues.id, email: dataUser.dataValues.email })
+               
                   
 
                         return res.status(200).send({
@@ -282,15 +290,21 @@ module.exports = {
                         
                     })
                     .catch((err) => {
+                        console.log('err1')
+                        console.log(err)
                         return res.status(500).send({ status: 'error', message: 'User not found' });
                     })
                 })
                 .catch((err) => {
+                    console.log('err2')
+                    console.log(err)
                     return res.status(500).json({ message: "There's an error on the server. Please contact the administrator.", error: err.message });
                 })
             }
         })
         .catch((err) => {
+            console.log('err3')
+            console.log(err)
             return res.status(500).json({ message: "There's an error on the server. Please contact the administrator.", error: err.message });
         })
     },
@@ -311,7 +325,7 @@ module.exports = {
         
                 let mailOptions = {
                     from: 'KasihNusantara Admin <rezardiansyah1997@gmail.com>',
-                    to: email,
+                    to: req.user.email,
                     subject: 'Verifikasi Email for Kasih Nusantara',
                     html: `
                             <div>
@@ -500,6 +514,7 @@ module.exports = {
             return res.status(500).json({ message: "There's an error on the server. Please contact the administrator.", error: err.message });
         })
     },
+    
     getSchool:(req,res)=>{
         School.findAll({
             attributes:[
@@ -510,6 +525,9 @@ module.exports = {
         })
         .then((result)=>{
             return res.status(200).send({ message : 'getschool success', result : result})
+        })
+        .catch((err) => {
+            return res.status(500).send(err)
         })
     },
 
@@ -564,6 +582,8 @@ module.exports = {
             }
         })
         .then((results) => {
+            console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+            console.log(results)
             if(results !== null) {
                 // Kalo sudah pernah mendaftar dengan email google, dan user ingin mencoba
                 // login lewat gmail, maka muncul errornya
@@ -581,6 +601,8 @@ module.exports = {
                     }
                 })
                 .then((dataUser) => {
+                    console.log('BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB')
+                    console.log(dataUser)
                     if(dataUser !== null) {
                         // Jika ada
                         // console.log(dataUser.id)
@@ -610,9 +632,12 @@ module.exports = {
                         .then((results) => {
 
                             User.findOne({
-                                isGoogle: encryptGoogleId
+                                where: {
+                                    isGoogle: encryptGoogleId
+                                }
                             })
                             .then((dataUserInsert) => {
+                                console.log('CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCc')
                                 const tokenJwt = createJWTToken({ userId: dataUserInsert.id, email: dataUserInsert.email })
 
                                 return res.status(200).send({
@@ -691,7 +716,9 @@ module.exports = {
                         .then((results) => {
 
                             User.findOne({
-                                isGoogle: encryptFacebookId
+                                where: {
+                                    isFacebook: encryptFacebookId
+                                }
                             })
                             .then((dataUserInsert) => {
                                 const tokenJwt = createJWTToken({ userId: dataUserInsert.id, email: dataUserInsert.email })
@@ -761,22 +788,25 @@ module.exports = {
         //     res.send(results)
         // })
         Subscription.findOne({
+            attributes : ['nominalSubscription'],
             where: {
-                userId: req.user.userId
+                userId: req.user.userId,
+                scholarshipId : req.params.id
+
             }
         })
         .then((result) => {
             console.log(result)
-            let status;
-            if(result) {
-                console.log('User ini telah subscribe')
-                status = 1
-            } else {
-                console.log('User ini belum subscribe ke scholarship ini')
-                status = 0
-            }
+            // let status;
+            // if(result) {
+            //     console.log('User ini telah subscribe')
+            //     status = 1
+            // } else {
+            //     console.log('User ini belum subscribe ke scholarship ini')
+            //     status = 0
+            // }
             return res.status(200).send({
-                status           
+                result           
             })
         })
         .catch((err) => {
@@ -785,21 +815,22 @@ module.exports = {
  
     },
 
-    applySubscription : (req,res) => {
-        var { subscriptionNominal, email, reminderDate } = req.body
-        // console.log(req.body)
-        User.update({
-            subscriptionStatus: 1,
-            subscriptionNominal,
-            reminderDate
-        },{
-            where: { email }
-        })
-        .then(() => {
-            // console.log('masuk')
-            res.send('success')
-        })
-    },
+    // applySubscription : (req,res) => {
+    //     var { subscriptionNominal, email, reminderDate } = req.body
+    //     // console.log(req.body)
+    //     User.update({
+    //         subscriptionStatus: 1,
+    //         subscriptionNominal,
+    //         reminderDate
+    //     },{
+    //         where: { email }
+    //     })
+    //     .then(() => {
+    //         // console.log('masuk')
+    //         res.send('success')
+    //     })
+    // },
+    
     reminderInvoice : async (req,results) =>{ // RUN SEKALI / HARI
         // console.log('reminderINvoice')
         // console.log(req)
@@ -859,6 +890,7 @@ module.exports = {
             
                 })
                 console.log(res)
+                
         
                 // console.log(res[0].dataValues.User.dataValues)
         
@@ -910,7 +942,8 @@ module.exports = {
         
                 Subscription.update(
                 {
-                    monthLeft : sequelize.literal('monthLeft - 1')
+                    monthLeft : sequelize.literal('monthLeft - 1'),
+                    remainderDate : sequelize.fn('ADDDATE', sequelize.col('remainderDate'),sequelize.literal('INTERVAL 1 MONTH') )
                 }
                 ,
                 {
@@ -958,8 +991,8 @@ module.exports = {
         }
         
     },
-    projectCheck : (req,results) =>{ 
-        
+    projectCheck :   (req,results) =>{ 
+   
         // Project.update(
         //     {
         //         isGoing : 0
@@ -1020,17 +1053,20 @@ module.exports = {
         //     })
 
 
+        // BNEER
+
         Project.findAll({
             attributes : [
                  'id',
-                 [sequelize.fn('SUM', sequelize.col('Payments.nominal')), 'totalNominal'],
+                 [sequelize.fn('SUM', sequelize.col('Payments.nominal')), 'totalPayment'],
                  'projectEnded',
-                 'totalTarget'
+                 'totalTarget',
+                 [sequelize.fn('datediff', sequelize.col('projectEnded') ,  sequelize.fn('NOW')), 'SisaHari'],
             ],
             include : [
                 {
                     model : Payment,
-                    required : true
+                    required : false
                 }
             ],
             where : {
@@ -1051,12 +1087,17 @@ module.exports = {
             group : ['id'],
             having : {
                 [Op.or] : [
-                    sequelize.where(sequelize.fn('datediff', sequelize.col('projectEnded') ,  sequelize.fn("NOW")), {
-                        [Op.lte] : 0 // OR [Op.gt] : 5
-                    }),
+                    // sequelize.where(sequelize.fn('datediff', sequelize.col('projectEnded') ,  sequelize.fn("NOW")), {
+                    //     [Op.lte] : 0 // OR [Op.gt] : 5
+                    // }),
+                    {
+                        SisaHari : {
+                             [Op.lte] : 0
+                         }
+                    },
                     {
                         totalTarget : {
-                            [Op.lte] : sequelize.col('totalNominal')
+                            [Op.lte] : sequelize.col('totalPayment')
                             //sequelize.fn('SUM', sequelize.col('Payments.nominal'))
                         }
                     }
@@ -1065,6 +1106,8 @@ module.exports = {
             }
         }).then((res)=>{
    
+
+            console.log(res)
             var listproject = res.map((val)=>{
                 console.log(val.dataValues)
                 return val.dataValues.id
@@ -1088,6 +1131,8 @@ module.exports = {
             console.log('errors')
         })
 
+        // BNEER
+
 
        
     },
@@ -1106,33 +1151,33 @@ module.exports = {
          
                 "scholarshipStart",
                 "scholarshipEnded",
-                [sequelize.fn('datediff', sequelize.col('scholarshipEnded') ,  sequelize.col('scholarshipStart')), 'SisaHari'],
+                [sequelize.fn('datediff', sequelize.col('scholarshipEnded') ,  sequelize.fn('NOW')), 'SisaHari'],
                 // [sequelize.fn('SUM', sequelize.col('Subscriptions.nominalSubscription')), 'currentSubs'],
-                [sequelize.fn('SUM', sequelize.col('Payments.nominal')), 'totalpayment'],
+                [sequelize.fn('SUM', sequelize.col('Payments.nominal')), 'totalPayment'],
                 [sequelize.fn('COUNT', sequelize.col('Payments.id')), 'jumlahdonation']
   
       
             ],
             
             include : [
-            {
-                model : Subscription,
-                attributes :   ['nominalSubscription',[sequelize.fn('SUM', sequelize.col('nominalSubscription')), 'currentSubs']], 
+            // {
+            //     model : Subscription,
+            //     attributes :   ['nominalSubscription',[sequelize.fn('SUM', sequelize.col('nominalSubscription')), 'currentSubs']], 
                             
-                separate : true,
-                group : ['scholarshipId']
-                // include : [
-                //     {
-                //         model : scholarship,
-                //         attributes : [],
-                //         where : {
-                //             isOngoing : 1
-                //         }
-                //     }
-                // ],
+            //     separate : true,
+            //     group : ['scholarshipId']
+            //     // include : [
+            //     //     {
+            //     //         model : scholarship,
+            //     //         attributes : [],
+            //     //         where : {
+            //     //             isOngoing : 1
+            //     //         }
+            //     //     }
+            //     // ],
 
             
-            },
+            // },
             {
                 model : Payment,
                 attributes : []
@@ -1143,50 +1188,44 @@ module.exports = {
                 // isDeleted : 0,
                 // isGoing : 1
             },
-            group : ['id']
+            group : ['id'],
+            having : {
+                [Op.or] : [
+                    {
+                       SisaHari : {
+                            [Op.lte] : 0
+                        }
+                    }
+                    ,
+                    // sequelize.where(sequelize.fn('datediff', sequelize.col('scholarshipEnded') ,  sequelize.fn("NOW")), {
+                    //     [Op.lte] : 0 // OR [Op.gt] : 5
+                    // }),
+                    {
+                        nominal : {
+                            [Op.lte] : sequelize.col('totalPayment')
+                            //sequelize.fn('SUM', sequelize.col('Payments.nominal'))
+                        }
+                    }
+                ]
+           
+            }
              
         }).then((res)=>{
 
             console.log(res)
-        
-   
+
             var listscholarship = res.map((val)=>{
-      
-                    if(val.dataValues.Subscriptions.length !== 0){
-                        var hasil = {...val.dataValues, ...val.dataValues.Subscriptions[0].dataValues}
-                        hasil.grandtotal = parseInt(hasil.totalpayment) + parseInt(hasil.currentSubs)
-                    }else{
-                        var hasil = {...val.dataValues }
-                        hasil.grandtotal = parseInt(hasil.totalpayment)
-                    }
-                
-                    // if(parseInt(hasil.totalpayment) + parseInt(hasil.currentSubs) >= hasil.nominal || hasil.SisaHari === 0){
-                    //     return hasil.id
-                    // }
-                    delete hasil.Subscriptions
-                    return hasil
-                
+                console.log(val.dataValues)
+                return val.dataValues.id
             })
-
             console.log(listscholarship)
-
-            listscholarship = listscholarship.filter(function(e){
-                return e.grandtotal >= e.nominal || e.SisaHari === 0
-            })
-
-            var scholarshipStop = listscholarship.map((e)=> e.id)
-            console.log(scholarshipStop)
-            
-     
-
-   
 
             scholarship.update({
                 isOngoing : 0
             }, {
                 where : {
                     id : {
-                        [Op.in] : scholarshipStop
+                        [Op.in] : listscholarship
                     }
                 }
             }).then((res)=>{
@@ -1196,14 +1235,157 @@ module.exports = {
             })
 
 
+        
+   
+            // var listscholarship = res.map((val)=>{
+      
+            //         if(val.dataValues.Subscriptions.length !== 0){
+            //             var hasil = {...val.dataValues, ...val.dataValues.Subscriptions[0].dataValues}
+            //             hasil.grandtotal = parseInt(hasil.totalpayment) + parseInt(hasil.currentSubs)
+            //         }else{
+            //             var hasil = {...val.dataValues }
+            //             hasil.grandtotal = parseInt(hasil.totalpayment)
+            //         }
+                
+            //         // if(parseInt(hasil.totalpayment) + parseInt(hasil.currentSubs) >= hasil.nominal || hasil.SisaHari === 0){
+            //         //     return hasil.id
+            //         // }
+            //         delete hasil.Subscriptions
+            //         return hasil
+                
+            // })
+
+            // console.log(listscholarship)
+
+            // listscholarship = listscholarship.filter(function(e){
+            //     return e.grandtotal >= e.nominal || e.SisaHari === 0
+            // })
+
+            // var scholarshipStop = listscholarship.map((e)=> e.id)
+            // console.log(scholarshipStop)
+            
+     
+
+   
+
+            // scholarship.update({
+            //     isOngoing : 0
+            // }, {
+            //     where : {
+            //         id : {
+            //             [Op.in] : scholarshipStop
+            //         }
+            //     }
+            // }).then((res)=>{
+            //     console.log('success')
+            // }).catch((err)=>{
+            //     console.log('error')
+            // })
+
+
         }).catch((err)=>{
             console.log(err)
             console.log('errors')
         })
-
-
-       
     },
+
+    getDataUser: (req, res) => {
+        User.findOne({
+            where: {
+                id: req.user.userId
+            }
+        })
+        .then((result) => {
+            return res.status(200).send(result)
+        })
+        .catch((err) => {
+            console.log(err)
+        })
+    },
+
+    updateProfilePic: (req, res) => {
+        try {
+            let path = `/users`; //file save path
+            const upload = uploader(path, 'KasihNusantara').fields([{ name: 'imageUser' }]); //uploader(path, 'default prefix')
+
+            upload(req, res, (err) => {
+                if (err) {
+                    return res.status(500).json({ message: 'Upload picture failed !', error: err.message });
+                }
+
+                // Setelah upload berhasil
+                // proses parse data JSON karena kita ngirim file gambar
+                // const data = JSON.parse(req.body.data);
+                /* 
+                 `createdAt` default value ?, 
+                `updatedAt` default value */
+
+                const { imageUser } = req.files;
+       
+                const imagePath = imageUser ? path + '/' + imageUser[0].filename : '/defaultPhoto/defaultUser.png';
+
+                User.update(
+                    {
+                        userImage: imagePath
+                    },
+                    {
+                        where : {
+                            id: req.user.userId
+                        }
+                    }
+                )
+                .then((result) => {
+                    User.findOne({
+                        where: {
+                            id: req.user.userId
+                        }
+                    })
+                    .then((resultAkhir) => {
+                        return res.status(200).send(resultAkhir)
+                    })  
+                    .catch((err) => {
+                        return res.status(500).send(err)
+                    })
+                })
+                .catch((err) =>{
+                    console.log(err)
+                })
+            })
+        }
+        catch(err) {
+            return res.status(500).json({ error: err.message });
+        }
+    },
+
+    editPhoneNumber: (req, res) => {
+        console.log(req.body.phoneNumber)
+        User.update(
+            {
+                phoneNumber: req.body.phoneNumber
+            },
+            {
+                where : {
+                    id: req.user.userId
+                }
+            }
+        )
+        .then((results) => {
+            User.findOne({
+                where: {
+                    id: req.user.userId
+                }
+            })
+            .then((resultAkhir) => {
+                return res.status(200).send(resultAkhir)
+            })  
+            .catch((err) => {
+                return res.status(500).send(err)
+            })
+        })
+        .catch((err) => {
+            console.log(err)
+        })
+    }
     
 }
 

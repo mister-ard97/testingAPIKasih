@@ -11,21 +11,21 @@ module.exports = {
                 where: {
                     id: id,
                 },
-                include: [
-                    {
-                        model: StudentDetail,
-                        require: true,
-                        // attributes: ['name']
-                        // separate:true,
-                        attributes: {
-                            exclude: ['createdAt', 'updatedAt']
-                        }
-                    },
-                    {
-                        model: School,
-                        attributes: ['id',['nama', 'namaSekolah']]
-                    }
-                ],
+                // include: [
+                //     {
+                //         model: StudentDetail,
+                //         require: true,
+                //         // attributes: ['name']
+                //         // separate:true,
+                //         attributes: {
+                //             exclude: ['createdAt', 'updatedAt']
+                //         }
+                //     },
+                //     {
+                //         model: School,
+                //         attributes: ['id',['nama', 'namaSekolah']]
+                //     }
+                // ],
                 attributes: {
                     exclude: ['createdAt', 'updatedAt']
                 }
@@ -93,7 +93,10 @@ module.exports = {
             .then(() => {
                 StudentDetail.findAll({where: {studentId}})
                 .then((results2) => {
-                    res.send(results2);
+                    return res.status(200).send(results2)
+                })
+                .catch((error)=>{
+                    return res.status(500).send(error)
                 })
             })
         }).catch((err) => {
@@ -234,12 +237,13 @@ module.exports = {
         }
         
     },
-    getDetail:(req, res) => {
-        // let {id} = req.params
-        // console.log(id)
-        // console.log(req.body)
-        console.log('-----------------> masuk detail')
 
-    }
+    // getDetail:(req, res) => {
+    //     let {id} = req.params
+    //     console.log(id)
+    //     console.log(req.body)
+    //     console.log('-----------------> masuk detail')
+
+    // }
 
 }

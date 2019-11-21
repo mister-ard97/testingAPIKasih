@@ -4,11 +4,18 @@ const {uploader} = require('../helpers/uploader')
 const fs = require('fs')
 
 
+// opn(oauth.generateAuthUrl({
+//     access_type: "offline"
+//   , scope: ["https://www.googleapis.com/auth/youtube.upload"]
+// }));
+
+
 
 module.exports = {
     postProject : (req,res) =>{
         console.log('masuk1')
 
+        
         const path = '/post/image/project'; //file save path
         const upload = uploader(path, 'PJT').fields([{ name: 'image'}]); //uploader(path, 'default prefix')
 
@@ -355,8 +362,6 @@ module.exports = {
                 [sequelize.fn('datediff', sequelize.col('projectEnded') ,  sequelize.fn("NOW")), 'SisaHari'],
                 [sequelize.fn('SUM', sequelize.col('Payments.nominal')), 'totalNominal'],
                 [sequelize.fn('COUNT', sequelize.col('Payments.id')), 'totalDonasi']
-
-
             ],
             include : 
                 {
@@ -371,31 +376,31 @@ module.exports = {
                 isDeleted : 0,
                 isGoing : 1
             },
-            order : [['projectCreated', `${date}`]],
+            order: [['id', `${date}`],['projectCreated', `${date}`]],
             // order : !date ? [['id', 'asc']] : [['projectCreated', `${date}`]],
             group : ['id']
         })
         .then((results)=>{
-            console.log(results.length)
-            // Project.count({
-            //     where: {
-            //         name: {
-            //         [Op.like] : `%${name}%`
-            //         },
-            //         isDeleted : 0,
-            //         isGoing : 1
-            //     }
-            // })
-            // .then((resultsTotalProject) => {
+            console.log(results)
+            Project.count({
+                where: {
+                    name: {
+                    [Op.like] : `%${name}%`
+                    },
+                    isDeleted : 0,
+                    isGoing : 1
+                }
+            })
+            .then((resultsTotalProject) => {
                 
-            //     let total = resultsTotalProject
-            //     console.log('total  ' + total)
+                let total = resultsTotalProject
+                // console.log('total  ' + total)
                 
-                return res.status(200).send({message : 'success get  proooooojects', results})
-            // })
-            // .catch((err) => {
-            //     return res.status(500).send({message : err})
-            // })
+               return res.status(200).send({message : 'success get  proooooojects', results, total})
+            })
+            .catch((err) => {
+                return res.status(500).send({message : err})
+            })
         })
         .catch((err) => {
             console.log('nasuk')
@@ -423,6 +428,20 @@ module.exports = {
                 return res.status(404).send('error')
             }
         })  
+    },
+
+    deleteFileQuill :  async (req,res) =>{ 
+        console.log('delete file')
+        var filepath = req.body.filepath
+
+        try{
+            await fs.unlinkSync('./public' + filepath);
+            console.log('success')
+            return res.status(200).send({message : ` Success Delete File IN ${filepath}`  })
+        }
+        catch(err){
+            return  res.status(500).send({err})
+        }
     }
 
 }
