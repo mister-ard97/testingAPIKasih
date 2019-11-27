@@ -191,8 +191,17 @@ module.exports = {
                     include : [{
                         model : Student,
                         attributes : [
+                            ["id", "siswaId"],
                             ["name", "namaSiswa"],
-                            "studentImage"
+                            "studentImage",
+                            "provinsi",
+                            "story",
+                            "shareDescription",
+                            "kartuSiswa",
+                            "raportTerakhir",
+                            "kartuKeluarga",
+                            "biayaSekolah",
+                            "kelas"
                         ]
                     },
                     // {
