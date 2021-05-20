@@ -19,7 +19,7 @@
     "express-bearer-token": "^2.4.0",
     "express-rate-limit": "^5.0.0",
     "handlebars": "^4.5.2",
-    "html-pdf": "^2.2.0",
+    "html-pdf": "^3.0.1",
     "install": "^0.12.2",
     "jsonwebtoken": "^8.3.0",
     "lien": "^3.3.0",
