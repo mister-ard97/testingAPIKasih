@@ -15,7 +15,7 @@
     "bug-killer": "^4.4.4",
     "cloudinary": "^1.17.0",
     "cors": "^2.8.5",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "express-bearer-token": "^2.4.0",
     "express-rate-limit": "^5.0.0",
     "handlebars": "^4.5.2",
